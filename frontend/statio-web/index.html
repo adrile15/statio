@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Statio</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body class="bg-gray-100">
+
+<!-- HERO -->
+
+<header class="bg-gradient-to-r from-blue-500 to-purple-600 text-white pt-16 pb-24">
+
+<div class="max-w-7xl mx-auto px-8">
+
+<h1 class="text-5xl font-bold mb-4">
+Encuentra la plaza de parking perfecta para tu vehículo
+</h1>
+
+<p class="text-xl mb-10">
+Alquila plazas de garaje por horas. Seguro, fácil y económico.
+</p>
+
+</div>
+
+
+<!-- SEARCH BAR -->
+
+<div class="max-w-5xl mx-auto px-8">
+
+<div class="bg-white p-4 rounded-xl flex gap-4 text-black shadow-lg">
+
+<input
+type="text"
+placeholder="Buscar por ubicación, nombre..."
+class="flex-1 p-3 border rounded-lg">
+
+<select class="p-3 border rounded-lg">
+<option>Todos los vehículos</option>
+<option>Coche pequeño</option>
+<option>Coche grande</option>
+<option>Moto</option>
+</select>
+
+<select class="p-3 border rounded-lg">
+<option>Todos los precios</option>
+<option>0 - 2 €/hora</option>
+<option>2 - 5 €/hora</option>
+<option>5 €+</option>
+</select>
+
+</div>
+
+</div>
+
+</header>
+
+
+
+<!-- RESULTS -->
+
+<section class="p-12 max-w-7xl mx-auto">
+
+<div class="flex justify-between items-center mb-8">
+
+<h2 class="text-2xl font-bold">
+5 plazas disponibles
+</h2>
+
+<div class="flex gap-3">
+
+<button class="bg-white border px-4 py-2 rounded-lg">
+Cuadrícula
+</button>
+
+<button class="bg-white border px-4 py-2 rounded-lg">
+Mapa
+</button>
+
+</div>
+
+</div>
+
+
+
+<!-- GRID -->
+
+<div class="grid grid-cols-3 gap-8">
+
+
+
+
+<!-- CARD 1 -->
+
+<div class="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden">
+
+<div class="relative">
+
+<img src="https://images.unsplash.com/photo-1506521781263-d8422e82f27a"
+class="w-full h-48 object-cover">
+
+<span class="absolute top-3 left-3 bg-blue-500 text-white text-xs px-3 py-1 rounded-full">
+Coche grande
+</span>
+
+<span class="absolute top-3 right-3 bg-white text-sm px-3 py-1 rounded-full shadow">
+€3/hora
+</span>
+
+</div>
+
+<div class="p-6">
+
+<h3 class="text-lg font-semibold mb-2">
+Plaza Amplia en Parking Cubierto
+</h3>
+
+<p class="text-gray-500 text-sm mb-3">
+📍 Madrid Centro, Calle Serrano
+</p>
+
+<p class="text-gray-600 text-sm mb-4">
+Plaza de garaje espaciosa ideal para coches grandes o SUVs.
+</p>
+
+<div class="flex flex-wrap gap-2 mb-5">
+
+<span class="bg-gray-200 text-xs px-3 py-1 rounded-full">
+Vigilancia 24h
+</span>
+
+<span class="bg-gray-200 text-xs px-3 py-1 rounded-full">
+Cubierto
+</span>
+
+<span class="bg-gray-200 text-xs px-3 py-1 rounded-full">
+Ascensor
+</span>
+
+</div>
+
+<a href="parking-details.html"
+class="block text-center bg-black text-white py-3 rounded-lg hover:bg-gray-800">
+Ver detalles y reservar
+</a>
+
+</div>
+
+</div>
+
+
+
+
+<!-- CARD 2 -->
+
+<div class="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden">
+
+<div class="relative">
+
+<img src="https://images.unsplash.com/photo-1511919884226-fd3cad34687c"
+class="w-full h-48 object-cover">
+
+<span class="absolute top-3 left-3 bg-blue-500 text-white text-xs px-3 py-1 rounded-full">
+Moto
+</span>
+
+<span class="absolute top-3 right-3 bg-white text-sm px-3 py-1 rounded-full shadow">
+€1.5/hora
+</span>
+
+</div>
+
+<div class="p-6">
+
+<h3 class="text-lg font-semibold mb-2">
+Plaza para Moto - Zona Segura
+</h3>
+
+<p class="text-gray-500 text-sm mb-3">
+📍 Barcelona Eixample
+</p>
+
+<p class="text-gray-600 text-sm mb-4">
+Espacio específico para motos con anclaje de seguridad.
+</p>
+
+<div class="flex flex-wrap gap-2 mb-5">
+
+<span class="bg-gray-200 text-xs px-3 py-1 rounded-full">
+Anclaje seguridad
+</span>
+
+<span class="bg-gray-200 text-xs px-3 py-1 rounded-full">
+Cubierto
+</span>
+
+</div>
+
+<a href="parking-details.html"
+class="block text-center bg-black text-white py-3 rounded-lg hover:bg-gray-800">
+Ver detalles y reservar
+</a>
+
+</div>
+
+</div>
+
+
+
+
+<!-- CARD 3 -->
+
+<div class="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden">
+
+<div class="relative">
+
+<img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70"
+class="w-full h-48 object-cover">
+
+<span class="absolute top-3 left-3 bg-blue-500 text-white text-xs px-3 py-1 rounded-full">
+Coche pequeño
+</span>
+
+<span class="absolute top-3 right-3 bg-white text-sm px-3 py-1 rounded-full shadow">
+€2/hora
+</span>
+
+</div>
+
+<div class="p-6">
+
+<h3 class="text-lg font-semibold mb-2">
+Plaza Económica Coche Compacto
+</h3>
+
+<p class="text-gray-500 text-sm mb-3">
+📍 Valencia Centro
+</p>
+
+<p class="text-gray-600 text-sm mb-4">
+Parking al aire libre con fácil acceso.
+</p>
+
+<div class="flex flex-wrap gap-2 mb-5">
+
+<span class="bg-gray-200 text-xs px-3 py-1 rounded-full">
+Acceso 24h
+</span>
+
+<span class="bg-gray-200 text-xs px-3 py-1 rounded-full">
+Cerca metro
+</span>
+
+</div>
+
+<a href="parking-details.html"
+class="block text-center bg-black text-white py-3 rounded-lg hover:bg-gray-800">
+Ver detalles y reservar
+</a>
+
+</div>
+
+</div>
+
+
+
+</div>
+
+</section>
+
+</body>
+</html>
