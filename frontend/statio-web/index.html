@@ -10,6 +10,30 @@
 
 <body class="bg-gray-100">
 
+<!-- NAVBAR -->
+<div class="flex justify-between items-center p-4 bg-white shadow">
+
+<div class="text-xl font-bold text-blue-600">Ⓟ Statio</div>
+
+<div class="flex items-center gap-4">
+
+    <!-- Menú privado -->
+    <div id="privateMenu" class="hidden flex gap-4">
+        <a href="#" class="hover:underline">Publicar Plaza</a>
+        <a href="#" class="hover:underline">Mis Reservas</a>
+        <a href="#" class="hover:underline">Validar</a>
+    </div>
+
+    <!-- Usuario -->
+    <div id="userSection" class="flex gap-4">
+        <a href="login.html" class="hover:underline">Login</a>
+        <a href="register.html" class="hover:underline">Register</a>
+    </div>
+
+</div>
+
+</div>
+
 <!-- HERO -->
 
 <header class="bg-gradient-to-r from-blue-500 to-purple-600 text-white pt-16 pb-24">
@@ -90,186 +114,142 @@ Mapa
 
 <div class="grid grid-cols-3 gap-8">
 
-
-
-
 <!-- CARD 1 -->
-
 <div class="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden">
-
 <div class="relative">
-
 <img src="https://images.unsplash.com/photo-1506521781263-d8422e82f27a"
 class="w-full h-48 object-cover">
-
 <span class="absolute top-3 left-3 bg-blue-500 text-white text-xs px-3 py-1 rounded-full">
 Coche grande
 </span>
-
 <span class="absolute top-3 right-3 bg-white text-sm px-3 py-1 rounded-full shadow">
 €3/hora
 </span>
-
 </div>
-
 <div class="p-6">
-
 <h3 class="text-lg font-semibold mb-2">
 Plaza Amplia en Parking Cubierto
 </h3>
-
 <p class="text-gray-500 text-sm mb-3">
 📍 Madrid Centro, Calle Serrano
 </p>
-
 <p class="text-gray-600 text-sm mb-4">
 Plaza de garaje espaciosa ideal para coches grandes o SUVs.
 </p>
-
 <div class="flex flex-wrap gap-2 mb-5">
-
 <span class="bg-gray-200 text-xs px-3 py-1 rounded-full">
 Vigilancia 24h
 </span>
-
 <span class="bg-gray-200 text-xs px-3 py-1 rounded-full">
 Cubierto
 </span>
-
 <span class="bg-gray-200 text-xs px-3 py-1 rounded-full">
 Ascensor
 </span>
-
 </div>
-
 <a href="parking-details.html"
 class="block text-center bg-black text-white py-3 rounded-lg hover:bg-gray-800">
 Ver detalles y reservar
 </a>
-
 </div>
-
 </div>
-
-
-
 
 <!-- CARD 2 -->
-
 <div class="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden">
-
 <div class="relative">
-
 <img src="https://images.unsplash.com/photo-1511919884226-fd3cad34687c"
 class="w-full h-48 object-cover">
-
 <span class="absolute top-3 left-3 bg-blue-500 text-white text-xs px-3 py-1 rounded-full">
 Moto
 </span>
-
 <span class="absolute top-3 right-3 bg-white text-sm px-3 py-1 rounded-full shadow">
 €1.5/hora
 </span>
-
 </div>
-
 <div class="p-6">
-
 <h3 class="text-lg font-semibold mb-2">
 Plaza para Moto - Zona Segura
 </h3>
-
 <p class="text-gray-500 text-sm mb-3">
 📍 Barcelona Eixample
 </p>
-
 <p class="text-gray-600 text-sm mb-4">
 Espacio específico para motos con anclaje de seguridad.
 </p>
-
 <div class="flex flex-wrap gap-2 mb-5">
-
 <span class="bg-gray-200 text-xs px-3 py-1 rounded-full">
 Anclaje seguridad
 </span>
-
 <span class="bg-gray-200 text-xs px-3 py-1 rounded-full">
 Cubierto
 </span>
-
 </div>
-
 <a href="parking-details.html"
 class="block text-center bg-black text-white py-3 rounded-lg hover:bg-gray-800">
 Ver detalles y reservar
 </a>
-
 </div>
-
 </div>
-
-
-
 
 <!-- CARD 3 -->
-
 <div class="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden">
-
 <div class="relative">
-
 <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70"
 class="w-full h-48 object-cover">
-
 <span class="absolute top-3 left-3 bg-blue-500 text-white text-xs px-3 py-1 rounded-full">
 Coche pequeño
 </span>
-
 <span class="absolute top-3 right-3 bg-white text-sm px-3 py-1 rounded-full shadow">
 €2/hora
 </span>
-
 </div>
-
 <div class="p-6">
-
 <h3 class="text-lg font-semibold mb-2">
 Plaza Económica Coche Compacto
 </h3>
-
 <p class="text-gray-500 text-sm mb-3">
 📍 Valencia Centro
 </p>
-
 <p class="text-gray-600 text-sm mb-4">
 Parking al aire libre con fácil acceso.
 </p>
-
 <div class="flex flex-wrap gap-2 mb-5">
-
 <span class="bg-gray-200 text-xs px-3 py-1 rounded-full">
 Acceso 24h
 </span>
-
 <span class="bg-gray-200 text-xs px-3 py-1 rounded-full">
 Cerca metro
 </span>
-
 </div>
-
 <a href="parking-details.html"
 class="block text-center bg-black text-white py-3 rounded-lg hover:bg-gray-800">
 Ver detalles y reservar
 </a>
-
 </div>
-
 </div>
-
-
 
 </div>
 
 </section>
+
+<!-- SCRIPT SESIÓN -->
+<script>
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (user) {
+    document.getElementById("privateMenu").classList.remove("hidden");
+
+    document.getElementById("userSection").innerHTML = `
+        <span class="mr-4 font-semibold">${user.name}</span>
+        <button onclick="logout()" class="text-red-500 hover:underline">Salir</button>
+    `;
+}
+
+function logout() {
+    localStorage.removeItem("user");
+    window.location.href = "login.html";
+}
+</script>
 
 </body>
 </html>

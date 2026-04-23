@@ -1,53 +1,53 @@
 package com.statio.api.controller;
 
+import com.statio.api.dto.ParkingRequest;
 import com.statio.api.model.ParkingSpot;
+import com.statio.api.model.User;
 import com.statio.api.repository.ParkingSpotRepository;
+import com.statio.api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/parkings")
+@RequestMapping("/api/parking")
 @CrossOrigin
 public class ParkingController {
 
-@Autowired
-private ParkingSpotRepository parkingRepository;
+    @Autowired
+    private ParkingSpotRepository parkingRepo;
 
-@GetMapping
-public List<ParkingSpot> getAllParkings(){
-return parkingRepository.findAll();
-}
+    @Autowired
+    private UserRepository userRepo;
 
-@GetMapping("/{id}")
-public ParkingSpot getParkingById(@PathVariable Long id){
-return parkingRepository.findById(id).orElse(null);
-}
+    // 🔥 NUEVO: obtener todos los parkings
+    @GetMapping
+    public List<ParkingSpot> getAllParkings() {
+        return parkingRepo.findAll();
+    }
 
-@PostMapping
-public ParkingSpot createParking(@RequestBody ParkingSpot parking){
-return parkingRepository.save(parking);
-}
+    // 🔥 crear parking (lo que ya tenías)
+    @PostMapping
+    public ParkingSpot createParking(@RequestBody ParkingRequest request) {
 
-@PutMapping("/{id}")
-public ParkingSpot updateParking(@PathVariable Long id, @RequestBody ParkingSpot updated){
+        User user = userRepo.findById(request.getUserId()).orElseThrow();
 
-ParkingSpot parking = parkingRepository.findById(id).orElseThrow();
+        ParkingSpot parking = new ParkingSpot();
+        parking.setTitle(request.getTitle());
+        parking.setLocation(request.getLocation());
+        parking.setVehicleType(request.getVehicleType());
+        parking.setPrice(request.getPrice());
+        parking.setDescription(request.getDescription());
+        parking.setUser(user);
 
-parking.setTitle(updated.getTitle());
-parking.setDescription(updated.getDescription());
-parking.setCity(updated.getCity());
-parking.setAddress(updated.getAddress());
-parking.setVehicleType(updated.getVehicleType());
-parking.setPricePerHour(updated.getPricePerHour());
+        parking.setImages(request.getImages()); // 🔥 CLAVE
 
-return parkingRepository.save(parking);
-}
+        return parkingRepo.save(parking);
+    }
 
-@DeleteMapping("/{id}")
-public void deleteParking(@PathVariable Long id){
-parkingRepository.deleteById(id);
-}
-
+    @GetMapping("/{id}")
+    public ParkingSpot getParkingById(@PathVariable Long id) {
+        return parkingRepo.findById(id).orElseThrow();
+    }
 }

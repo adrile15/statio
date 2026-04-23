@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Detalles del Parking</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+<!-- NAVBAR -->
+
+<div class="flex justify-between items-center p-4 bg-white shadow">
+    <div class="text-xl font-bold text-blue-600">Ⓟ Statio</div>
+    <a href="index.html">← Volver</a>
+</div>
+
+<!-- CONTENIDO -->
+
+<div class="max-w-6xl mx-auto mt-10 bg-white p-8 rounded-xl shadow">
+
+```
+<!-- IMÁGENES -->
+<div class="relative mb-6">
+    <img id="mainImage" class="w-full h-96 object-cover rounded-lg">
+
+    <!-- Botones -->
+    <button onclick="prevImage()"
+    class="absolute left-2 top-1/2 bg-white px-3 py-1 rounded shadow">
+    ◀
+    </button>
+
+    <button onclick="nextImage()"
+    class="absolute right-2 top-1/2 bg-white px-3 py-1 rounded shadow">
+    ▶
+    </button>
+</div>
+
+<!-- INFO -->
+<h1 id="title" class="text-3xl font-bold mb-2"></h1>
+
+<p id="location" class="text-gray-500 mb-4"></p>
+
+<p id="description" class="mb-6"></p>
+
+<p id="price" class="text-2xl font-bold text-blue-600 mb-6"></p>
+```
+
+</div>
+
+<script>
+
+// coger ID de URL
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+
+let images = [];
+let current = 0;
+
+// cargar parking
+fetch(`/api/parking/${id}`)
+.then(res => res.json())
+.then(p => {
+
+    document.getElementById("title").innerText = p.title;
+    document.getElementById("location").innerText = "📍 " + p.location;
+    document.getElementById("description").innerText = p.description;
+    document.getElementById("price").innerText = "€" + p.price + "/hora";
+
+    images = p.images && p.images.length > 0
+        ? p.images
+        : ["https://images.unsplash.com/photo-1506521781263-d8422e82f27a"];
+
+    showImage();
+});
+
+// mostrar imagen
+function showImage(){
+    document.getElementById("mainImage").src = images[current];
+}
+
+// siguiente
+function nextImage(){
+    current = (current + 1) % images.length;
+    showImage();
+}
+
+// anterior
+function prevImage(){
+    current = (current - 1 + images.length) % images.length;
+    showImage();
+}
+
+</script>
+
+</body>
+</html>

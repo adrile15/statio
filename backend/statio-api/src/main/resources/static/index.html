@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Statio</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body class="bg-gray-100">
+
+<!-- NAVBAR -->
+<div class="flex justify-between items-center p-4 bg-white shadow">
+
+<div class="text-xl font-bold text-blue-600">Ⓟ Statio</div>
+
+<div class="flex items-center gap-4">
+
+    <!-- Menú privado -->
+    <div id="privateMenu" class="hidden flex gap-4">
+        <a href="create-parking.html" class="hover:underline">Publicar Plaza</a>
+        <a href="#" class="hover:underline">Mis Reservas</a>
+        <a href="#" class="hover:underline">Validar</a>
+    </div>
+
+    <!-- Usuario -->
+    <div id="userSection" class="flex gap-4">
+        <a href="login.html" class="hover:underline">Login</a>
+        <a href="register.html" class="hover:underline">Register</a>
+    </div>
+
+</div>
+
+</div>
+
+<!-- HERO -->
+<header class="bg-gradient-to-r from-blue-500 to-purple-600 text-white pt-16 pb-24">
+
+<div class="max-w-7xl mx-auto px-8">
+
+<h1 class="text-5xl font-bold mb-4">
+Encuentra la plaza de parking perfecta para tu vehículo
+</h1>
+
+<p class="text-xl mb-10">
+Alquila plazas de garaje por horas. Seguro, fácil y económico.
+</p>
+
+</div>
+
+<!-- SEARCH BAR -->
+<div class="max-w-5xl mx-auto px-8">
+
+<div class="bg-white p-4 rounded-xl flex gap-4 text-black shadow-lg">
+
+<input type="text" placeholder="Buscar por ubicación, nombre..."
+class="flex-1 p-3 border rounded-lg">
+
+<select class="p-3 border rounded-lg">
+<option>Todos los vehículos</option>
+<option>Coche pequeño</option>
+<option>Coche grande</option>
+<option>Moto</option>
+</select>
+
+<select class="p-3 border rounded-lg">
+<option>Todos los precios</option>
+<option>0 - 2 €/hora</option>
+<option>2 - 5 €/hora</option>
+<option>5 €+</option>
+</select>
+
+</div>
+
+</div>
+
+</header>
+
+<!-- RESULTS -->
+<section class="p-12 max-w-7xl mx-auto">
+
+<div class="flex justify-between items-center mb-8">
+
+<h2 class="text-2xl font-bold">
+Plazas disponibles
+</h2>
+
+<div class="flex gap-3">
+<button class="bg-white border px-4 py-2 rounded-lg">Cuadrícula</button>
+<button class="bg-white border px-4 py-2 rounded-lg">Mapa</button>
+</div>
+
+</div>
+
+<!-- 🔥 GRID DINÁMICO -->
+<div id="parkingsContainer" class="grid grid-cols-3 gap-8"></div>
+
+</section>
+
+<!-- SCRIPT SESIÓN -->
+<script>
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (user) {
+    document.getElementById("privateMenu").classList.remove("hidden");
+
+    document.getElementById("userSection").innerHTML = `
+        <span class="mr-4 font-semibold">${user.name}</span>
+        <button onclick="logout()" class="text-red-500 hover:underline">Salir</button>
+    `;
+}
+
+function logout() {
+    localStorage.removeItem("user");
+    window.location.href = "login.html";
+}
+</script>
+
+<!-- 🔥 SCRIPT CARGAR PARKINGS -->
+<script>
+
+async function loadParkings() {
+    const res = await fetch("/api/parking");
+    const parkings = await res.json();
+
+    const container = document.getElementById("parkingsContainer");
+    container.innerHTML = "";
+
+    parkings.forEach(p => {
+
+        const image = (p.images && p.images.length > 0)
+            ? p.images[0]
+            : "https://via.placeholder.com/400x200";
+
+        const card = `
+        <div class="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden">
+
+            <div class="relative">
+                <img src="${image}" class="w-full h-48 object-cover">
+
+                <span class="absolute top-3 left-3 bg-blue-500 text-white text-xs px-3 py-1 rounded-full">
+                    ${p.vehicleType}
+                </span>
+
+                <span class="absolute top-3 right-3 bg-white text-sm px-3 py-1 rounded-full shadow">
+                    €${p.price}/hora
+                </span>
+            </div>
+
+            <div class="p-6">
+                <h3 class="text-lg font-semibold mb-2">
+                    ${p.title}
+                </h3>
+
+                <p class="text-gray-500 text-sm mb-3">
+                    📍 ${p.location}
+                </p>
+
+                <p class="text-gray-600 text-sm mb-4">
+                    ${p.description || ""}
+                </p>
+
+                <a href="parking-details.html?id=${p.id}"
+                class="block text-center bg-black text-white py-3 rounded-lg hover:bg-gray-800">
+                Ver detalles
+                </a>
+            </div>
+
+        </div>
+        `;
+
+        container.innerHTML += card;
+    });
+}
+
+loadParkings();
+
+</script>
+
+</body>
+</html>

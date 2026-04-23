@@ -18,7 +18,7 @@ private String email;
 
 private String password;
 
-@OneToMany(mappedBy = "owner")
+@OneToMany(mappedBy = "user") 
 private List<ParkingSpot> parkingSpots;
 
 @OneToMany(mappedBy = "user")

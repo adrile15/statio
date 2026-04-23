@@ -8,6 +8,5 @@ public interface ParkingSpotRepository extends JpaRepository<ParkingSpot, Long> 
 
 List<ParkingSpot> findByVehicleType(String vehicleType);
 
-List<ParkingSpot> findByCity(String city);
 
 }
