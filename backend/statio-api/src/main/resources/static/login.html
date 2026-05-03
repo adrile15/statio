@@ -69,7 +69,7 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
 
         const user = await response.json();
 
-        // 🔥 Guardar sesión
+        // Guardar sesión
         localStorage.setItem("user", JSON.stringify(user));
 
         alert("Login correcto");

@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -10,55 +9,78 @@
 <body class="bg-gray-100">
 
 <!-- NAVBAR -->
-
 <div class="flex justify-between items-center p-4 bg-white shadow">
     <div class="text-xl font-bold text-blue-600">Ⓟ Statio</div>
-    <a href="index.html">← Volver</a>
+
+    <div class="flex items-center gap-6">
+        <a href="javascript:history.back()" class="hover:underline">Volver</a>
+        <span id="userName" class="font-semibold"></span>
+        <button onclick="logout()" class="text-red-500">Salir</button>
+    </div>
 </div>
 
 <!-- CONTENIDO -->
-
 <div class="max-w-6xl mx-auto mt-10 bg-white p-8 rounded-xl shadow">
 
-```
-<!-- IMÁGENES -->
 <div class="relative mb-6">
     <img id="mainImage" class="w-full h-96 object-cover rounded-lg">
-
-    <!-- Botones -->
-    <button onclick="prevImage()"
-    class="absolute left-2 top-1/2 bg-white px-3 py-1 rounded shadow">
-    ◀
-    </button>
-
-    <button onclick="nextImage()"
-    class="absolute right-2 top-1/2 bg-white px-3 py-1 rounded shadow">
-    ▶
-    </button>
+    <button onclick="prevImage()" class="absolute left-2 top-1/2 bg-white px-3 py-1 rounded shadow">◀</button>
+    <button onclick="nextImage()" class="absolute right-2 top-1/2 bg-white px-3 py-1 rounded shadow">▶</button>
 </div>
 
-<!-- INFO -->
 <h1 id="title" class="text-3xl font-bold mb-2"></h1>
-
 <p id="location" class="text-gray-500 mb-4"></p>
-
 <p id="description" class="mb-6"></p>
-
 <p id="price" class="text-2xl font-bold text-blue-600 mb-6"></p>
-```
 
+<div class="mt-8">
+    <h3 class="text-xl font-bold mb-4">Disponibilidad</h3>
+    <div id="slotsContainer" class="space-y-3"></div>
+</div>
+
+<button onclick="openModal()" class="mt-6 w-full bg-black text-white p-3 rounded-lg">
+Reservar plaza
+</button>
+
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+    <div class="bg-white p-6 rounded-xl w-96 text-center">
+        <h2 class="text-xl font-bold mb-4">Confirmar reserva</h2>
+        <p class="mb-4">¿Quieres reservar esta franja?</p>
+
+        <button onclick="confirmReservation()" class="bg-green-500 text-white px-4 py-2 rounded mr-2">
+        Confirmar
+        </button>
+
+        <button onclick="closeModal()" class="bg-gray-300 px-4 py-2 rounded">
+        Cancelar
+        </button>
+    </div>
 </div>
 
 <script>
 
-// coger ID de URL
+// usuario
+const user = JSON.parse(localStorage.getItem("user"));
+if (user) {
+    document.getElementById("userName").innerText = user.name;
+}
+
+// logout
+function logout(){
+    localStorage.removeItem("user");
+    window.location.href="login.html";
+}
+
 const params = new URLSearchParams(window.location.search);
 const id = params.get("id");
 
 let images = [];
 let current = 0;
+let selectedSlotId = null;
 
-// cargar parking
 fetch(`/api/parking/${id}`)
 .then(res => res.json())
 .then(p => {
@@ -68,28 +90,97 @@ fetch(`/api/parking/${id}`)
     document.getElementById("description").innerText = p.description;
     document.getElementById("price").innerText = "€" + p.price + "/hora";
 
-    images = p.images && p.images.length > 0
-        ? p.images
-        : ["https://images.unsplash.com/photo-1506521781263-d8422e82f27a"];
-
+    images = p.images?.length ? p.images : ["https://images.unsplash.com/photo-1506521781263-d8422e82f27a"];
     showImage();
+
+    const container = document.getElementById("slotsContainer");
+
+    p.availabilitySlots.forEach(slot => {
+
+        const div = document.createElement("div");
+        div.className = "p-4 border rounded-lg";
+
+        if(!slot.available){
+            div.classList.add("bg-gray-200", "cursor-not-allowed");
+        } else {
+            div.classList.add("cursor-pointer", "hover:bg-gray-100");
+        }
+
+        div.innerHTML = `
+            <div class="font-semibold">${slot.date}</div>
+            <div class="text-gray-500">${slot.startTime} - ${slot.endTime}</div>
+        `;
+
+        if(slot.available){
+            div.onclick = () => {
+                document.querySelectorAll("#slotsContainer div")
+                    .forEach(d => d.classList.remove("bg-blue-100"));
+
+                div.classList.add("bg-blue-100");
+                selectedSlotId = slot.id;
+            };
+        }
+
+        container.appendChild(div);
+    });
 });
 
-// mostrar imagen
 function showImage(){
     document.getElementById("mainImage").src = images[current];
 }
 
-// siguiente
 function nextImage(){
     current = (current + 1) % images.length;
     showImage();
 }
 
-// anterior
 function prevImage(){
     current = (current - 1 + images.length) % images.length;
     showImage();
+}
+
+function openModal(){
+    if(!selectedSlotId){
+        alert("Selecciona una franja");
+        return;
+    }
+    document.getElementById("modal").classList.remove("hidden");
+}
+
+function closeModal(){
+    document.getElementById("modal").classList.add("hidden");
+}
+
+async function confirmReservation(){
+
+    const res = await fetch("/api/reservations", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            userId: user.id,
+            parkingSpotId: id,
+            slotId: selectedSlotId
+        })
+    });
+
+    if(res.ok){
+        const data = await res.json();
+
+        document.getElementById("modal").innerHTML = `
+            <div class="bg-white p-6 rounded-xl text-center">
+                <h2 class="text-xl font-bold mb-4">Reserva confirmada</h2>
+                <p>Tu código:</p>
+                <p class="text-2xl font-bold text-blue-600">${data.accessCode}</p>
+
+                <button onclick="location.href='index.html'"
+                class="mt-4 bg-black text-white px-4 py-2 rounded">
+                Volver
+                </button>
+            </div>
+        `;
+    } else {
+        alert("Error al reservar");
+    }
 }
 
 </script>

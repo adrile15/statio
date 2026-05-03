@@ -11,7 +11,10 @@ public class ParkingRequest {
     private double price;
     private Long userId;
 
-    private List<String> images; // 🔥 AÑADIDO
+    private List<String> images;
+
+    // slots enviados desde frontend
+    private List<AvailabilitySlotDTO> slots;
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -33,4 +36,7 @@ public class ParkingRequest {
 
     public List<String> getImages() { return images; }
     public void setImages(List<String> images) { this.images = images; }
+
+    public List<AvailabilitySlotDTO> getSlots() { return slots; }
+    public void setSlots(List<AvailabilitySlotDTO> slots) { this.slots = slots; }
 }

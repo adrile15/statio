@@ -1,14 +1,18 @@
 package com.statio.api.controller;
 
 import com.statio.api.dto.ParkingRequest;
+import com.statio.api.dto.AvailabilitySlotDTO;
 import com.statio.api.model.ParkingSpot;
 import com.statio.api.model.User;
+import com.statio.api.model.AvailabilitySlot;
 import com.statio.api.repository.ParkingSpotRepository;
 import com.statio.api.repository.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/parking")
@@ -21,13 +25,11 @@ public class ParkingController {
     @Autowired
     private UserRepository userRepo;
 
-    // 🔥 NUEVO: obtener todos los parkings
     @GetMapping
     public List<ParkingSpot> getAllParkings() {
         return parkingRepo.findAll();
     }
 
-    // 🔥 crear parking (lo que ya tenías)
     @PostMapping
     public ParkingSpot createParking(@RequestBody ParkingRequest request) {
 
@@ -40,8 +42,25 @@ public class ParkingController {
         parking.setPrice(request.getPrice());
         parking.setDescription(request.getDescription());
         parking.setUser(user);
+        parking.setImages(request.getImages());
 
-        parking.setImages(request.getImages()); // 🔥 CLAVE
+        List<AvailabilitySlot> slots = new ArrayList<>();
+
+        if (request.getSlots() != null) {
+            for (AvailabilitySlotDTO dto : request.getSlots()) {
+
+                AvailabilitySlot slot = new AvailabilitySlot();
+                slot.setDate(dto.getDate());
+                slot.setStartTime(dto.getStartTime());
+                slot.setEndTime(dto.getEndTime());
+                slot.setAvailable(true);
+                slot.setParkingSpot(parking);
+
+                slots.add(slot);
+            }
+        }
+
+        parking.setAvailabilitySlots(slots);
 
         return parkingRepo.save(parking);
     }

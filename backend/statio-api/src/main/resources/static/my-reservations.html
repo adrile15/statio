@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Mis Reservas</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+<!-- NAVBAR -->
+<div class="flex justify-between items-center p-4 bg-white shadow">
+    <div class="text-xl font-bold text-blue-600">Ⓟ Statio</div>
+
+    <div class="flex items-center gap-6">
+        <a href="javascript:history.back()" class="hover:underline">Volver</a>
+        <span id="userName" class="font-semibold"></span>
+        <button onclick="logout()" class="text-red-500">Salir</button>
+    </div>
+</div>
+
+<div class="max-w-4xl mx-auto mt-10">
+
+<h1 class="text-3xl font-bold mb-2">Mis Reservas</h1>
+<p class="text-gray-500 mb-6">
+Gestiona tus reservas y accede a tus códigos de acceso
+</p>
+
+<div id="reservationsContainer" class="space-y-6"></div>
+
+</div>
+
+<script>
+
+const user = JSON.parse(localStorage.getItem("user"));
+if (!user) window.location.href = "login.html";
+
+document.getElementById("userName").innerText = user.name;
+
+loadReservations();
+
+function loadReservations(){
+
+fetch(`/api/reservations/user/${user.id}`)
+.then(res => res.json())
+.then(reservations => {
+
+    const container = document.getElementById("reservationsContainer");
+    container.innerHTML = "";
+
+    if(reservations.length === 0){
+        container.innerHTML = "<p class='text-gray-500'>No tienes reservas</p>";
+        return;
+    }
+
+    reservations.forEach(r => {
+
+        const card = document.createElement("div");
+        card.className = "bg-white p-6 rounded-xl shadow";
+
+        card.innerHTML = `
+            <div class="flex justify-between items-center mb-2">
+                <h2 class="text-xl font-bold">${r.parkingSpot.title}</h2>
+                <span class="bg-green-500 text-white text-sm px-3 py-1 rounded-full">
+                    ${r.status}
+                </span>
+            </div>
+
+            <p class="text-gray-500 mb-4">📍 ${r.parkingSpot.location}</p>
+
+            <div class="flex justify-between mb-4">
+                <div>
+                    <p class="text-gray-400 text-sm">Fecha</p>
+                    <p class="font-semibold">${formatDate(r.slot.date)}</p>
+                </div>
+
+                <div>
+                    <p class="text-gray-400 text-sm">Horario</p>
+                    <p class="font-semibold">
+                        ${r.slot.startTime} - ${r.slot.endTime}
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg flex justify-between items-center mb-4">
+                <div>
+                    <p class="text-sm text-gray-500">Código de acceso</p>
+                    <p class="text-xl font-bold">${r.accessCode}</p>
+                </div>
+
+                <button onclick="copyCode('${r.accessCode}')"
+                class="bg-white border px-3 py-1 rounded">
+                    Copiar
+                </button>
+            </div>
+
+            <div class="flex gap-4">
+                <a href="parking-details.html?id=${r.parkingSpot.id}"
+                class="flex-1 text-center border py-2 rounded">
+                    Ver detalles
+                </a>
+
+                <button onclick="cancelReservation(${r.id})"
+                class="flex-1 text-center border py-2 rounded text-red-500">
+                    Cancelar reserva
+                </button>
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+
+});
+}
+
+// cancelar real
+async function cancelReservation(id){
+
+    const confirmacion = confirm("¿Seguro que quieres cancelar la reserva?");
+    if(!confirmacion) return;
+
+    const res = await fetch(`/api/reservations/${id}`, {
+        method: "DELETE"
+    });
+
+    if(res.ok){
+        alert("Reserva cancelada");
+        loadReservations();
+    } else {
+        alert("Error al cancelar");
+    }
+}
+
+function formatDate(dateStr){
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("es-ES", {
+        weekday: "long",
+        day: "numeric",
+        month: "long"
+    });
+}
+
+function copyCode(code){
+    navigator.clipboard.writeText(code);
+    alert("Código copiado");
+}
+
+function logout(){
+    localStorage.removeItem("user");
+    window.location.href="login.html";
+}
+
+</script>
+
+</body>
+</html>

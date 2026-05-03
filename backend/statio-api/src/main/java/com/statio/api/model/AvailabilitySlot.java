@@ -3,62 +3,42 @@ package com.statio.api.model;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 public class AvailabilitySlot {
 
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-private LocalDate date;
+    private LocalDate date;
+    private LocalTime startTime;
+    private LocalTime endTime;
 
-private LocalTime startTime;
+    private boolean available = true;
 
-private LocalTime endTime;
+    @ManyToOne
+    @JoinColumn(name = "parking_spot_id")
+    @JsonBackReference
+    private ParkingSpot parkingSpot;
 
-private boolean available;
+    public AvailabilitySlot() {}
 
-@ManyToOne
-@JoinColumn(name = "parking_spot_id")
-private ParkingSpot parkingSpot;
+    public Long getId() { return id; }
 
-public AvailabilitySlot() {}
+    public LocalDate getDate() { return date; }
+    public void setDate(LocalDate date) { this.date = date; }
 
-public Long getId() {
-return id;
-}
+    public LocalTime getStartTime() { return startTime; }
+    public void setStartTime(LocalTime startTime) { this.startTime = startTime; }
 
-public LocalDate getDate() {
-return date;
-}
+    public LocalTime getEndTime() { return endTime; }
+    public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
 
-public void setDate(LocalDate date) {
-this.date = date;
-}
+    public boolean isAvailable() { return available; }
+    public void setAvailable(boolean available) { this.available = available; }
 
-public LocalTime getStartTime() {
-return startTime;
-}
-
-public void setStartTime(LocalTime startTime) {
-this.startTime = startTime;
-}
-
-public LocalTime getEndTime() {
-return endTime;
-}
-
-public void setEndTime(LocalTime endTime) {
-this.endTime = endTime;
-}
-
-public boolean isAvailable() {
-return available;
-}
-
-public void setAvailable(boolean available) {
-this.available = available;
-}
-
+    public ParkingSpot getParkingSpot() { return parkingSpot; }
+    public void setParkingSpot(ParkingSpot parkingSpot) { this.parkingSpot = parkingSpot; }
 }
