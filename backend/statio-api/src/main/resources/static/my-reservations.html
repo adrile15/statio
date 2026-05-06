@@ -8,7 +8,6 @@
 
 <body class="bg-gray-100">
 
-<!-- NAVBAR -->
 <div class="flex justify-between items-center p-4 bg-white shadow">
     <div class="text-xl font-bold text-blue-600">Ⓟ Statio</div>
 
@@ -26,6 +25,19 @@
 Gestiona tus reservas y accede a tus códigos de acceso
 </p>
 
+<!-- TABS -->
+<div class="flex bg-gray-200 rounded-full p-1 mb-6">
+    <button id="tabActive" onclick="showActive()"
+    class="flex-1 py-2 rounded-full bg-white">
+        Activas (<span id="activeCount">0</span>)
+    </button>
+
+    <button id="tabHistory" onclick="showHistory()"
+    class="flex-1 py-2 rounded-full">
+        Historial (<span id="historyCount">0</span>)
+    </button>
+</div>
+
 <div id="reservationsContainer" class="space-y-6"></div>
 
 </div>
@@ -37,6 +49,9 @@ if (!user) window.location.href = "login.html";
 
 document.getElementById("userName").innerText = user.name;
 
+let activeReservations = [];
+let historyReservations = [];
+
 loadReservations();
 
 function loadReservations(){
@@ -45,15 +60,53 @@ fetch(`/api/reservations/user/${user.id}`)
 .then(res => res.json())
 .then(reservations => {
 
+    const now = new Date();
+
+    activeReservations = reservations.filter(r => {
+        const end = new Date(`${r.slot.date}T${r.slot.endTime}`);
+        return end > now;
+    });
+
+    historyReservations = reservations.filter(r => {
+        const end = new Date(`${r.slot.date}T${r.slot.endTime}`);
+        return end <= now;
+    });
+
+    document.getElementById("activeCount").innerText = activeReservations.length;
+    document.getElementById("historyCount").innerText = historyReservations.length;
+
+    showActive();
+});
+}
+
+// MOSTRAR ACTIVAS
+function showActive(){
+    renderReservations(activeReservations);
+    setTab("active");
+}
+
+// MOSTRAR HISTORIAL
+function showHistory(){
+    renderReservations(historyReservations);
+    setTab("history");
+}
+
+// RENDER
+function renderReservations(list){
+
     const container = document.getElementById("reservationsContainer");
     container.innerHTML = "";
 
-    if(reservations.length === 0){
-        container.innerHTML = "<p class='text-gray-500'>No tienes reservas</p>";
+    if(list.length === 0){
+        container.innerHTML = "<p class='text-gray-500'>No hay reservas</p>";
         return;
     }
 
-    reservations.forEach(r => {
+    list.forEach(r => {
+
+        const statusColor = r.status === "USED"
+            ? "bg-gray-500"
+            : "bg-green-500";
 
         const card = document.createElement("div");
         card.className = "bg-white p-6 rounded-xl shadow";
@@ -61,7 +114,7 @@ fetch(`/api/reservations/user/${user.id}`)
         card.innerHTML = `
             <div class="flex justify-between items-center mb-2">
                 <h2 class="text-xl font-bold">${r.parkingSpot.title}</h2>
-                <span class="bg-green-500 text-white text-sm px-3 py-1 rounded-full">
+                <span class="${statusColor} text-white text-sm px-3 py-1 rounded-full">
                     ${r.status}
                 </span>
             </div>
@@ -100,20 +153,43 @@ fetch(`/api/reservations/user/${user.id}`)
                     Ver detalles
                 </a>
 
-                <button onclick="cancelReservation(${r.id})"
-                class="flex-1 text-center border py-2 rounded text-red-500">
-                    Cancelar reserva
-                </button>
+                ${
+                    (r.status === "USED" || isPast(r))
+                    ? ""
+                    : `<button onclick="cancelReservation(${r.id})"
+                       class="flex-1 text-center border py-2 rounded text-red-500">
+                       Cancelar reserva
+                       </button>`
+                }
             </div>
         `;
 
         container.appendChild(card);
     });
-
-});
 }
 
-// cancelar real
+// COMPROBAR SI YA PASÓ
+function isPast(r){
+    const end = new Date(`${r.slot.date}T${r.slot.endTime}`);
+    return end <= new Date();
+}
+
+// ESTILO TABS
+function setTab(tab){
+
+    const activeBtn = document.getElementById("tabActive");
+    const historyBtn = document.getElementById("tabHistory");
+
+    if(tab === "active"){
+        activeBtn.classList.add("bg-white");
+        historyBtn.classList.remove("bg-white");
+    } else {
+        historyBtn.classList.add("bg-white");
+        activeBtn.classList.remove("bg-white");
+    }
+}
+
+// CANCELAR
 async function cancelReservation(id){
 
     const confirmacion = confirm("¿Seguro que quieres cancelar la reserva?");
@@ -131,6 +207,7 @@ async function cancelReservation(id){
     }
 }
 
+// UTILIDADES
 function formatDate(dateStr){
     const date = new Date(dateStr);
     return date.toLocaleDateString("es-ES", {

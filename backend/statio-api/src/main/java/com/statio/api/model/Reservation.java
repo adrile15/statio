@@ -15,18 +15,18 @@ public class Reservation {
     private String status;
     private LocalDateTime createdAt;
 
-    // Usuario (no lo enviamos al frontend)
+    // Usuario (oculto)
     @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
 
-    // Parking (SÍ lo necesitamos en frontend)
+    // Parking
     @ManyToOne
     @JoinColumn(name = "parking_spot_id")
     private ParkingSpot parkingSpot;
 
-    // Slot (sí lo mostramos)
+    // Slot
     @ManyToOne
     @JoinColumn(name = "slot_id")
     private AvailabilitySlot slot;
@@ -52,4 +52,9 @@ public class Reservation {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    // solo exponemos el nombre
+    public String getUserName() {
+        return user != null ? user.getName() : null;
+    }
 }

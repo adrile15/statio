@@ -34,6 +34,7 @@ public class ReservationController {
     @Autowired
     private AvailabilitySlotRepository slotRepository;
 
+    // CREAR RESERVA
     @PostMapping
     public Reservation createReservation(@RequestBody ReservationRequest request) {
 
@@ -54,33 +55,48 @@ public class ReservationController {
         reservation.setCreatedAt(LocalDateTime.now());
         reservation.setStatus("CONFIRMED");
 
-        // bloquear slot
         slot.setAvailable(false);
         slotRepository.save(slot);
 
         return reservationRepository.save(reservation);
     }
 
+    // RESERVAS USUARIO
     @GetMapping("/user/{userId}")
     public List<Reservation> getUserReservations(@PathVariable Long userId){
         return reservationRepository.findByUserId(userId);
     }
 
-    //CANCELAR RESERVA
+    // CANCELAR RESERVA
     @DeleteMapping("/{id}")
     public void cancelReservation(@PathVariable Long id){
 
         Reservation reservation = reservationRepository.findById(id).orElseThrow();
 
-        // liberar slot
         AvailabilitySlot slot = reservation.getSlot();
         if(slot != null){
             slot.setAvailable(true);
             slotRepository.save(slot);
         }
 
-        // eliminar reserva
         reservationRepository.deleteById(id);
+    }
+
+    // VALIDAR CÓDIGO (CLAVE)
+    @PostMapping("/validate")
+    public Reservation validateCode(@RequestParam String code){
+
+        Reservation reservation = reservationRepository
+            .findByAccessCode(code)
+            .orElseThrow(() -> new RuntimeException("Código inválido"));
+
+        if(reservation.getStatus().equals("USED")){
+            throw new RuntimeException("Código ya utilizado");
+        }
+
+        reservation.setStatus("USED");
+
+        return reservationRepository.save(reservation);
     }
 
     private String generateAccessCode(){
@@ -94,4 +110,6 @@ public class ReservationController {
 
         return code.toString();
     }
+
+    
 }
