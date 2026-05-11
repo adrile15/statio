@@ -3,16 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <title>Statio</title>
+
 <script src="https://cdn.tailwindcss.com"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 </head>
 
 <body class="bg-gray-100">
 
 <!-- NAVBAR -->
 <div class="flex justify-between items-center p-4 bg-white shadow">
+
 <div class="text-xl font-bold text-blue-600">Ⓟ Statio</div>
 
 <div class="flex items-center gap-4">
+
     <div id="privateMenu" class="hidden flex gap-4">
         <a href="create-parking.html">Publicar Plaza</a>
         <a href="my-reservations.html">Mis Reservas</a>
@@ -23,30 +30,36 @@
         <a href="login.html">Login</a>
         <a href="register.html">Register</a>
     </div>
+
 </div>
+
 </div>
 
 <!-- HERO -->
 <header class="bg-gradient-to-r from-blue-500 to-purple-600 text-white pt-16 pb-24">
 
 <div class="max-w-7xl mx-auto px-8">
+
 <h1 class="text-5xl font-bold mb-4">
 Encuentra la plaza de parking perfecta
 </h1>
+
 <p class="text-xl mb-10">
 Alquila plazas por horas
 </p>
+
 </div>
 
 <!-- FILTROS -->
-<div class="max-w-5xl mx-auto px-8">
-<div class="bg-white p-4 rounded-xl flex flex-wrap gap-4 text-black shadow-lg">
+<div class="max-w-6xl mx-auto px-8">
+
+<div class="bg-white p-4 rounded-2xl flex flex-wrap gap-4 text-black shadow-xl">
 
 <input id="searchInput" type="text"
 placeholder="Buscar..."
-class="flex-1 p-3 border rounded-lg">
+class="flex-1 p-3 border rounded-xl">
 
-<select id="vehicleFilter" class="p-3 border rounded-lg">
+<select id="vehicleFilter" class="p-3 border rounded-xl">
 <option value="">Todos</option>
 <option value="Coche">Coche</option>
 <option value="Moto">Moto</option>
@@ -54,38 +67,107 @@ class="flex-1 p-3 border rounded-lg">
 <option value="Camion">Camion</option>
 </select>
 
-<input id="minPrice" type="number" placeholder="Min €"
-class="p-3 border rounded-lg w-24">
+<input id="minPrice" type="number"
+placeholder="Min €"
+class="p-3 border rounded-xl w-28">
 
-<input id="maxPrice" type="number" placeholder="Max €"
-class="p-3 border rounded-lg w-24">
+<input id="maxPrice" type="number"
+placeholder="Max €"
+class="p-3 border rounded-xl w-28">
 
 <input id="dateFilter" type="date"
-class="p-3 border rounded-lg">
+class="p-3 border rounded-xl">
 
-<select id="sortPrice" class="p-3 border rounded-lg">
+<select id="sortPrice" class="p-3 border rounded-xl">
 <option value="">Ordenar</option>
 <option value="asc">Precio ascendente</option>
 <option value="desc">Precio descendente</option>
 </select>
 
 </div>
+
 </div>
 
 </header>
 
 <!-- RESULTADOS -->
-<section class="p-12 max-w-7xl mx-auto">
-<h2 class="text-2xl font-bold mb-8">Plazas disponibles</h2>
-<div id="parkingsContainer" class="grid grid-cols-3 gap-8"></div>
+<section class="p-8 max-w-7xl mx-auto">
+
+<!-- HEADER -->
+<div class="flex justify-between items-center mb-8">
+
+    <h2 class="text-3xl font-bold">
+        Plazas disponibles
+    </h2>
+
+    <!-- TOGGLE -->
+    <div class="bg-white rounded-full shadow flex p-1">
+
+        <button
+        id="gridBtn"
+        onclick="setViewMode('grid')"
+        class="px-5 py-2 rounded-full bg-black text-white transition">
+        Cuadrícula
+        </button>
+
+        <button
+        id="mapBtn"
+        onclick="setViewMode('map')"
+        class="px-5 py-2 rounded-full transition">
+        Mapa
+        </button>
+
+    </div>
+
+</div>
+
+<!-- GRID VIEW -->
+<div id="gridView">
+
+    <div id="parkingsContainer"
+    class="grid grid-cols-3 gap-8">
+    </div>
+
+</div>
+
+<!-- MAP VIEW -->
+<div id="mapView" class="hidden">
+
+    <div class="grid grid-cols-2 gap-6">
+
+        <!-- LISTADO -->
+        <div>
+
+            <div id="parkingsMapContainer"
+            class="space-y-6 max-h-[800px] overflow-y-auto pr-2">
+            </div>
+
+        </div>
+
+        <!-- MAPA -->
+        <div>
+
+            <div id="map"
+            class="w-full h-[800px] rounded-2xl shadow-xl">
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
 </section>
 
 <script>
 
 // sesión
 const user = JSON.parse(localStorage.getItem("user"));
+
 if (user) {
+
     document.getElementById("privateMenu").classList.remove("hidden");
+
     document.getElementById("userSection").innerHTML = `
         <span>${user.name}</span>
         <button onclick="logout()">Salir</button>
@@ -93,77 +175,180 @@ if (user) {
 }
 
 function logout(){
+
     localStorage.removeItem("user");
-    window.location.href="login.html";
+    window.location.href = "login.html";
 }
 
 // bloquear fechas pasadas
 const today = new Date().toISOString().split("T")[0];
-document.getElementById("dateFilter").setAttribute("min", today);
+
+document.getElementById("dateFilter")
+.setAttribute("min", today);
 
 // datos
 let allParkings = [];
 
+let map;
+let markers = [];
+
+let currentView = "grid";
+
+// iniciar mapa
+function initMap(){
+
+    map = L.map('map').setView([40.4168, -3.7038], 6);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
+        attribution: '&copy; OpenStreetMap'
+
+    }).addTo(map);
+}
+
+// cambiar vista
+function setViewMode(mode){
+
+    currentView = mode;
+
+    const gridView =
+        document.getElementById("gridView");
+
+    const mapView =
+        document.getElementById("mapView");
+
+    const gridBtn =
+        document.getElementById("gridBtn");
+
+    const mapBtn =
+        document.getElementById("mapBtn");
+
+    if(mode === "grid"){
+
+        gridView.classList.remove("hidden");
+        mapView.classList.add("hidden");
+
+        gridBtn.classList.add("bg-black", "text-white");
+        mapBtn.classList.remove("bg-black", "text-white");
+
+    } else {
+
+        mapView.classList.remove("hidden");
+        gridView.classList.add("hidden");
+
+        mapBtn.classList.add("bg-black", "text-white");
+        gridBtn.classList.remove("bg-black", "text-white");
+
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 100);
+    }
+}
+
+// cargar parkings
 async function loadParkings(){
+
     const res = await fetch("/api/parking");
+
     allParkings = await res.json();
+
     applyFilters();
 }
 
 // filtros
 function applyFilters(){
 
-    const search = document.getElementById("searchInput").value.toLowerCase();
-    const vehicle = document.getElementById("vehicleFilter").value;
-    const min = parseFloat(document.getElementById("minPrice").value) || 0;
-    const max = parseFloat(document.getElementById("maxPrice").value) || Infinity;
-    const selectedDate = document.getElementById("dateFilter").value;
-    const sort = document.getElementById("sortPrice").value;
+    const search =
+        document.getElementById("searchInput")
+        .value
+        .toLowerCase();
+
+    const vehicle =
+        document.getElementById("vehicleFilter").value;
+
+    const min =
+        parseFloat(document.getElementById("minPrice").value) || 0;
+
+    const max =
+        parseFloat(document.getElementById("maxPrice").value) || Infinity;
+
+    const selectedDate =
+        document.getElementById("dateFilter").value;
+
+    const sort =
+        document.getElementById("sortPrice").value;
 
     let filtered = allParkings.filter(p => {
 
         const matchSearch =
+
             p.title.toLowerCase().includes(search) ||
+
             p.location.toLowerCase().includes(search);
 
         const matchVehicle =
-            vehicle === "" || p.vehicleType === vehicle;
+
+            vehicle === "" ||
+
+            p.vehicleType === vehicle;
 
         const matchPrice =
-            p.price >= min && p.price <= max;
+
+            p.price >= min &&
+            p.price <= max;
 
         let matchDate = true;
 
         if(selectedDate){
-            matchDate = p.availabilitySlots?.some(slot =>
-                slot.date === selectedDate && slot.available
-            );
+
+            matchDate =
+                p.availabilitySlots?.some(slot =>
+
+                    slot.date === selectedDate &&
+                    slot.available
+                );
         }
 
-        return matchSearch && matchVehicle && matchPrice && matchDate;
+        return matchSearch &&
+               matchVehicle &&
+               matchPrice &&
+               matchDate;
     });
 
     // ordenar
     if(sort === "asc"){
+
         filtered.sort((a,b) => a.price - b.price);
+
     } else if(sort === "desc"){
+
         filtered.sort((a,b) => b.price - a.price);
     }
 
     renderParkings(filtered, selectedDate);
+
+    renderMarkers(filtered);
 }
 
-// render
+// render cards
 function renderParkings(list, selectedDate){
 
-    const container = document.getElementById("parkingsContainer");
-    container.innerHTML = "";
+    const container =
+        document.getElementById("parkingsContainer");
 
-    const today = new Date().toISOString().split("T")[0];
+    const mapContainer =
+        document.getElementById("parkingsMapContainer");
+
+    container.innerHTML = "";
+    mapContainer.innerHTML = "";
+
+    const today =
+        new Date().toISOString().split("T")[0];
 
     list.forEach(p => {
 
-        const image = (p.images && p.images.length > 0)
+        const image =
+            (p.images && p.images.length > 0)
             ? p.images[0]
             : "";
 
@@ -172,69 +357,169 @@ function renderParkings(list, selectedDate){
         if(p.availabilitySlots){
 
             if(selectedDate){
-                availableCount = p.availabilitySlots.filter(slot =>
-                    slot.date === selectedDate && slot.available
-                ).length;
+
+                availableCount =
+                    p.availabilitySlots.filter(slot =>
+
+                        slot.date === selectedDate &&
+                        slot.available
+
+                    ).length;
+
             } else {
-                availableCount = p.availabilitySlots.filter(slot =>
-                    slot.available
-                ).length;
+
+                availableCount =
+                    p.availabilitySlots.filter(slot =>
+
+                        slot.available
+
+                    ).length;
             }
         }
 
-        // disponible hoy
-        const availableToday = p.availabilitySlots?.some(slot =>
-            slot.date === today && slot.available
-        );
+        const availableToday =
+            p.availabilitySlots?.some(slot =>
+
+                slot.date === today &&
+                slot.available
+            );
 
         const card = `
-        <div class="bg-white rounded-xl shadow overflow-hidden">
+
+        <div
+        onclick="focusParking(${p.latitude}, ${p.longitude})"
+        class="bg-white rounded-2xl shadow overflow-hidden cursor-pointer hover:shadow-2xl transition duration-300">
 
             ${
                 image
-                ? `<img src="${image}" class="w-full h-48 object-cover">`
-                : `<div class="w-full h-48 bg-gray-200 flex items-center justify-center">Sin imagen</div>`
+
+                ? `<img src="${image}" class="w-full h-56 object-cover">`
+
+                : `<div class="w-full h-56 bg-gray-200 flex items-center justify-center text-gray-500">
+                    Sin imagen
+                   </div>`
             }
 
             <div class="p-6">
-                <h3 class="font-semibold">${p.title}</h3>
 
-                <p class="text-gray-500">${p.location}</p>
+                <div class="flex justify-between items-center mb-2">
 
-                <p class="text-sm mb-2">${p.description || ""}</p>
+                    <h3 class="font-bold text-lg">
+                        ${p.title}
+                    </h3>
 
-                <p class="font-bold mb-2">€${p.price}/h</p>
+                    <span class="font-bold text-blue-600">
+                        €${p.price}/h
+                    </span>
+
+                </div>
+
+                <p class="text-gray-500 mb-3">
+                    ${p.location}
+                </p>
+
+                <p class="text-sm mb-4 text-gray-700">
+                    ${p.description || ""}
+                </p>
 
                 ${
                     availableToday
-                    ? `<span class="text-green-600 text-sm font-semibold">Disponible hoy</span>`
+
+                    ? `<span class="text-green-600 text-sm font-semibold">
+                        Disponible hoy
+                       </span>`
+
                     : ""
                 }
 
-                <p class="text-sm text-blue-600 mb-3">
+                <p class="text-sm text-blue-600 mb-4 mt-2">
                     ${availableCount} franjas disponibles
                 </p>
 
                 <a href="parking-details.html?id=${p.id}"
-                class="block text-center bg-black text-white py-2 rounded">
+                class="block text-center bg-black text-white py-3 rounded-xl hover:bg-gray-800 transition">
                 Ver detalles
                 </a>
+
             </div>
+
         </div>
         `;
 
         container.innerHTML += card;
+        mapContainer.innerHTML += card;
     });
 }
 
-// listeners
-document.getElementById("searchInput").addEventListener("input", applyFilters);
-document.getElementById("vehicleFilter").addEventListener("change", applyFilters);
-document.getElementById("minPrice").addEventListener("input", applyFilters);
-document.getElementById("maxPrice").addEventListener("input", applyFilters);
-document.getElementById("dateFilter").addEventListener("change", applyFilters);
-document.getElementById("sortPrice").addEventListener("change", applyFilters);
+// render markers
+function renderMarkers(list){
 
+    markers.forEach(marker => {
+        map.removeLayer(marker);
+    });
+
+    markers = [];
+
+    list.forEach(p => {
+
+        if(p.latitude && p.longitude){
+
+            const marker =
+                L.marker([p.latitude, p.longitude])
+                .addTo(map);
+
+            marker.bindPopup(`
+                <div class="w-48">
+                    <h3 class="font-bold mb-1">${p.title}</h3>
+                    <p class="text-sm">${p.location}</p>
+                    <p class="font-bold text-blue-600 mt-2">
+                        €${p.price}/hora
+                    </p>
+
+                    <a href="parking-details.html?id=${p.id}"
+                    class="text-blue-600 underline block mt-2">
+                    Ver detalles
+                    </a>
+                </div>
+            `);
+
+            markers.push(marker);
+        }
+    });
+}
+
+// centrar mapa
+function focusParking(lat, lng){
+
+    if(lat && lng){
+
+        setViewMode("map");
+
+        map.setView([lat, lng], 15);
+    }
+}
+
+// listeners
+document.getElementById("searchInput")
+.addEventListener("input", applyFilters);
+
+document.getElementById("vehicleFilter")
+.addEventListener("change", applyFilters);
+
+document.getElementById("minPrice")
+.addEventListener("input", applyFilters);
+
+document.getElementById("maxPrice")
+.addEventListener("input", applyFilters);
+
+document.getElementById("dateFilter")
+.addEventListener("change", applyFilters);
+
+document.getElementById("sortPrice")
+.addEventListener("change", applyFilters);
+
+// iniciar
+initMap();
 loadParkings();
 
 </script>

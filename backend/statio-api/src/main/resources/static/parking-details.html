@@ -3,7 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <title>Detalles del Parking</title>
+
 <script src="https://cdn.tailwindcss.com"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 </head>
 
 <body class="bg-gray-100">
@@ -22,54 +27,95 @@
 <!-- CONTENIDO -->
 <div class="max-w-6xl mx-auto mt-10 bg-white p-8 rounded-xl shadow">
 
+<!-- IMÁGENES -->
 <div id="imageWrapper" class="relative mb-6 hidden">
+
     <img id="mainImage" class="w-full h-96 object-cover rounded-lg">
 
-    <button onclick="prevImage()" class="absolute left-2 top-1/2 bg-white px-3 py-1 rounded shadow">
+    <button onclick="prevImage()"
+    class="absolute left-2 top-1/2 bg-white px-3 py-1 rounded shadow">
     ◀
     </button>
 
-    <button onclick="nextImage()" class="absolute right-2 top-1/2 bg-white px-3 py-1 rounded shadow">
+    <button onclick="nextImage()"
+    class="absolute right-2 top-1/2 bg-white px-3 py-1 rounded shadow">
     ▶
     </button>
+
 </div>
 
+<!-- INFO -->
 <h1 id="title" class="text-3xl font-bold mb-2"></h1>
-<p id="location" class="text-gray-500 mb-4"></p>
-<p id="description" class="mb-6"></p>
-<p id="price" class="text-2xl font-bold text-blue-600 mb-6"></p>
 
-<div class="mt-8">
-    <h3 class="text-xl font-bold mb-4">Disponibilidad</h3>
-    <div id="slotsContainer" class="space-y-3"></div>
+<p id="location" class="text-gray-500 mb-4"></p>
+
+<p id="description" class="mb-6"></p>
+
+<p id="price" class="text-2xl font-bold text-blue-600 mb-8"></p>
+
+<!-- MAPA -->
+<div class="mb-10">
+
+    <h3 class="text-xl font-bold mb-4">
+        Ubicación
+    </h3>
+
+    <div id="map" class="w-full h-96 rounded-xl shadow"></div>
+
 </div>
 
-<button onclick="openModal()" class="mt-6 w-full bg-black text-white p-3 rounded-lg">
+<!-- DISPONIBILIDAD -->
+<div class="mt-8">
+
+    <h3 class="text-xl font-bold mb-4">
+        Disponibilidad
+    </h3>
+
+    <div id="slotsContainer" class="space-y-3"></div>
+
+</div>
+
+<!-- BOTÓN -->
+<button onclick="openModal()"
+class="mt-6 w-full bg-black text-white p-3 rounded-lg">
 Reservar plaza
 </button>
 
 </div>
 
 <!-- MODAL -->
-<div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
-    <div class="bg-white p-6 rounded-xl w-96 text-center">
-        <h2 class="text-xl font-bold mb-4">Confirmar reserva</h2>
-        <p class="mb-4">¿Quieres reservar esta franja?</p>
+<div id="modal"
+class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
 
-        <button onclick="confirmReservation()" class="bg-green-500 text-white px-4 py-2 rounded mr-2">
+    <div class="bg-white p-6 rounded-xl w-96 text-center">
+
+        <h2 class="text-xl font-bold mb-4">
+            Confirmar reserva
+        </h2>
+
+        <p class="mb-4">
+            ¿Quieres reservar esta franja?
+        </p>
+
+        <button onclick="confirmReservation()"
+        class="bg-green-500 text-white px-4 py-2 rounded mr-2">
         Confirmar
         </button>
 
-        <button onclick="closeModal()" class="bg-gray-300 px-4 py-2 rounded">
+        <button onclick="closeModal()"
+        class="bg-gray-300 px-4 py-2 rounded">
         Cancelar
         </button>
+
     </div>
+
 </div>
 
 <script>
 
 // usuario
 const user = JSON.parse(localStorage.getItem("user"));
+
 if (user) {
     document.getElementById("userName").innerText = user.name;
 }
@@ -80,6 +126,7 @@ function logout(){
     window.location.href="login.html";
 }
 
+// params
 const params = new URLSearchParams(window.location.search);
 const id = params.get("id");
 
@@ -87,47 +134,112 @@ let images = [];
 let current = 0;
 let selectedSlotId = null;
 
+let map;
+let marker;
+
+// iniciar mapa
+function initMap(lat, lng){
+
+    map = L.map('map').setView([lat, lng], 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    marker = L.marker([lat, lng]).addTo(map);
+}
+
+// cargar parking
 fetch(`/api/parking/${id}`)
 .then(res => res.json())
 .then(p => {
 
+    // info
     document.getElementById("title").innerText = p.title;
-    document.getElementById("location").innerText = "📍 " + p.location;
-    document.getElementById("description").innerText = p.description;
-    document.getElementById("price").innerText = "€" + p.price + "/hora";
 
-    // CORRECCIÓN CLAVE
-    images = (p.images && p.images.length > 0) ? p.images : [];
+    document.getElementById("location").innerText =
+        "📍 " + p.location;
+
+    document.getElementById("description").innerText =
+        p.description;
+
+    document.getElementById("price").innerText =
+        "€" + p.price + "/hora";
+
+    // imágenes
+    images = (p.images && p.images.length > 0)
+        ? p.images
+        : [];
 
     if(images.length > 0){
-        document.getElementById("imageWrapper").classList.remove("hidden");
+
+        document.getElementById("imageWrapper")
+        .classList.remove("hidden");
+
         showImage();
     }
 
-    const container = document.getElementById("slotsContainer");
+    // mapa
+    if(p.latitude && p.longitude){
+
+        initMap(p.latitude, p.longitude);
+
+    } else {
+
+        document.getElementById("map").innerHTML = `
+            <div class="w-full h-full bg-gray-200 rounded-xl flex items-center justify-center text-gray-500">
+                Ubicación no disponible
+            </div>
+        `;
+    }
+
+    // slots
+    const container =
+        document.getElementById("slotsContainer");
 
     p.availabilitySlots.forEach(slot => {
 
         const div = document.createElement("div");
-        div.className = "p-4 border rounded-lg";
+
+        div.className =
+            "p-4 border rounded-lg";
 
         if(!slot.available){
-            div.classList.add("bg-gray-200", "cursor-not-allowed");
+
+            div.classList.add(
+                "bg-gray-200",
+                "cursor-not-allowed"
+            );
+
         } else {
-            div.classList.add("cursor-pointer", "hover:bg-gray-100");
+
+            div.classList.add(
+                "cursor-pointer",
+                "hover:bg-gray-100"
+            );
         }
 
         div.innerHTML = `
-            <div class="font-semibold">${slot.date}</div>
-            <div class="text-gray-500">${slot.startTime} - ${slot.endTime}</div>
+            <div class="font-semibold">
+                ${slot.date}
+            </div>
+
+            <div class="text-gray-500">
+                ${slot.startTime} - ${slot.endTime}
+            </div>
         `;
 
         if(slot.available){
+
             div.onclick = () => {
+
                 document.querySelectorAll("#slotsContainer div")
-                    .forEach(d => d.classList.remove("bg-blue-100"));
+                .forEach(d =>
+                    d.classList.remove("bg-blue-100")
+                );
 
                 div.classList.add("bg-blue-100");
+
                 selectedSlotId = slot.id;
             };
         }
@@ -136,38 +248,60 @@ fetch(`/api/parking/${id}`)
     });
 });
 
+// imágenes
 function showImage(){
-    document.getElementById("mainImage").src = images[current];
+
+    document.getElementById("mainImage").src =
+        images[current];
 }
 
 function nextImage(){
+
     current = (current + 1) % images.length;
+
     showImage();
 }
 
 function prevImage(){
+
     current = (current - 1 + images.length) % images.length;
+
     showImage();
 }
 
+// modal
 function openModal(){
+
     if(!selectedSlotId){
+
         alert("Selecciona una franja");
+
         return;
     }
-    document.getElementById("modal").classList.remove("hidden");
+
+    document.getElementById("modal")
+    .classList.remove("hidden");
 }
 
 function closeModal(){
-    document.getElementById("modal").classList.add("hidden");
+
+    document.getElementById("modal")
+    .classList.add("hidden");
 }
 
+// reservar
 async function confirmReservation(){
 
     const res = await fetch("/api/reservations", {
+
         method: "POST",
-        headers: {"Content-Type": "application/json"},
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
         body: JSON.stringify({
+
             userId: user.id,
             parkingSpotId: id,
             slotId: selectedSlotId
@@ -175,21 +309,38 @@ async function confirmReservation(){
     });
 
     if(res.ok){
+
         const data = await res.json();
 
         document.getElementById("modal").innerHTML = `
-            <div class="bg-white p-6 rounded-xl text-center">
-                <h2 class="text-xl font-bold mb-4">Reserva confirmada</h2>
-                <p>Tu código:</p>
-                <p class="text-2xl font-bold text-blue-600">${data.accessCode}</p>
 
-                <button onclick="location.href='index.html'"
+            <div class="bg-white p-6 rounded-xl text-center">
+
+                <h2 class="text-xl font-bold mb-4">
+                    Reserva confirmada
+                </h2>
+
+                <p>
+                    Tu código:
+                </p>
+
+                <p class="text-2xl font-bold text-blue-600">
+                    ${data.accessCode}
+                </p>
+
+                <button
+                onclick="location.href='index.html'"
                 class="mt-4 bg-black text-white px-4 py-2 rounded">
+
                 Volver
+
                 </button>
+
             </div>
         `;
+
     } else {
+
         alert("Error al reservar");
     }
 }

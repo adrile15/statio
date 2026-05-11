@@ -22,17 +22,21 @@ public class ParkingSpot {
     private String vehicleType;
     private double price;
 
+    // NUEVO
+    private Double latitude;
+    private Double longitude;
+
     @ElementCollection
     @CollectionTable(name = "parking_spot_images", joinColumns = @JoinColumn(name = "parking_spot_id"))
     @Column(name = "image_url")
     private List<String> images;
 
-    //MOSTRAR EN FRONTEND
+    // MOSTRAR EN FRONTEND
     @OneToMany(mappedBy = "parkingSpot", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<AvailabilitySlot> availabilitySlots;
 
-    //NO NECESARIO EN FRONTEND
+    // NO NECESARIO EN FRONTEND
     @OneToMany(mappedBy = "parkingSpot")
     @JsonIgnore
     private List<Reservation> reservations;
@@ -67,4 +71,21 @@ public class ParkingSpot {
 
     public List<Reservation> getReservations() { return reservations; }
     public void setReservations(List<Reservation> reservations) { this.reservations = reservations; }
+
+    // NUEVO
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
 }

@@ -36,24 +36,33 @@ public class ParkingController {
         User user = userRepo.findById(request.getUserId()).orElseThrow();
 
         ParkingSpot parking = new ParkingSpot();
+
         parking.setTitle(request.getTitle());
         parking.setLocation(request.getLocation());
         parking.setVehicleType(request.getVehicleType());
         parking.setPrice(request.getPrice());
         parking.setDescription(request.getDescription());
+
+        // NUEVO
+        parking.setLatitude(request.getLatitude());
+        parking.setLongitude(request.getLongitude());
+
         parking.setUser(user);
         parking.setImages(request.getImages());
 
         List<AvailabilitySlot> slots = new ArrayList<>();
 
         if (request.getSlots() != null) {
+
             for (AvailabilitySlotDTO dto : request.getSlots()) {
 
                 AvailabilitySlot slot = new AvailabilitySlot();
+
                 slot.setDate(dto.getDate());
                 slot.setStartTime(dto.getStartTime());
                 slot.setEndTime(dto.getEndTime());
                 slot.setAvailable(true);
+
                 slot.setParkingSpot(parking);
 
                 slots.add(slot);

@@ -13,20 +13,44 @@
 <div class="bg-white p-10 rounded-xl shadow-md w-96">
 
 <div class="text-center mb-6">
-<div class="text-3xl font-bold text-blue-600">Ⓟ Statio</div>
-<h2 class="text-2xl font-semibold mt-4">Iniciar Sesión</h2>
-<p class="text-gray-500 text-sm mt-2">Ingresa tus credenciales para acceder a tu cuenta</p>
+
+<div class="text-3xl font-bold text-blue-600">
+Ⓟ Statio
 </div>
 
+<h2 class="text-2xl font-semibold mt-4">
+Iniciar Sesión
+</h2>
+
+<p class="text-gray-500 text-sm mt-2">
+Ingresa tus credenciales para acceder a tu cuenta
+</p>
+
+</div>
+
+<!-- LOGIN NORMAL -->
 <form id="loginForm">
 
-<label class="block text-sm font-medium mb-1">Email</label>
-<input id="email" type="email" placeholder="tu@email.com"
-class="w-full p-3 mb-4 border rounded-lg bg-gray-100" required>
+<label class="block text-sm font-medium mb-1">
+Email
+</label>
 
-<label class="block text-sm font-medium mb-1">Contraseña</label>
-<input id="password" type="password"
-class="w-full p-3 mb-6 border rounded-lg bg-gray-100" required>
+<input
+id="email"
+type="email"
+placeholder="tu@email.com"
+class="w-full p-3 mb-4 border rounded-lg bg-gray-100"
+required>
+
+<label class="block text-sm font-medium mb-1">
+Contraseña
+</label>
+
+<input
+id="password"
+type="password"
+class="w-full p-3 mb-6 border rounded-lg bg-gray-100"
+required>
 
 <button
 class="w-full bg-black text-white p-3 rounded-lg hover:bg-gray-800 transition">
@@ -35,52 +59,151 @@ Iniciar Sesión
 
 </form>
 
+<!-- DIVIDER -->
+<div class="flex items-center my-6">
+
+<div class="flex-1 h-px bg-gray-300"></div>
+
+<span class="px-3 text-gray-400 text-sm">
+o
+</span>
+
+<div class="flex-1 h-px bg-gray-300"></div>
+
+</div>
+
+<!-- GOOGLE LOGIN -->
+<button
+id="googleLogin"
+class="w-full border border-gray-300 p-3 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-50 transition">
+
+<img
+src="https://developers.google.com/identity/images/g-logo.png"
+class="w-5 h-5">
+
+Continuar con Google
+
+</button>
+
 <p class="text-sm text-center mt-6">
+
 ¿No tienes cuenta?
-<a href="register.html" class="text-blue-500 hover:underline">
+
+<a href="register.html"
+class="text-blue-500 hover:underline">
+
 Regístrate aquí
+
 </a>
+
 </p>
 
 </div>
 
-<script>
-document.getElementById("loginForm").addEventListener("submit", async function(e) {
+<!-- FIREBASE -->
+<script type="module">
+
+import {
+    auth,
+    provider,
+    signInWithPopup
+} from "./firebase.js";
+
+// LOGIN NORMAL
+document.getElementById("loginForm")
+.addEventListener("submit", async function(e) {
+
     e.preventDefault();
 
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    const email =
+        document.getElementById("email").value;
+
+    const password =
+        document.getElementById("password").value;
 
     try {
-        const response = await fetch("http://localhost:8081/api/auth/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                email: email,
-                password: password
-            })
-        });
+
+        const response = await fetch(
+            "http://localhost:8081/api/auth/login",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            }
+        );
 
         if (!response.ok) {
-            throw new Error("Email o contraseña incorrectos");
+
+            throw new Error(
+                "Email o contraseña incorrectos"
+            );
         }
 
         const user = await response.json();
 
-        // Guardar sesión
-        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem(
+            "user",
+            JSON.stringify(user)
+        );
 
         alert("Login correcto");
 
-        // 🔜 Redirigir (la crearemos después)
         window.location.href = "index.html";
 
     } catch (error) {
+
         alert(error.message);
     }
 });
+
+// LOGIN GOOGLE
+document.getElementById("googleLogin")
+.addEventListener("click", async () => {
+
+    try {
+
+        const result =
+            await signInWithPopup(auth, provider);
+
+        const firebaseUser = result.user;
+
+        // usuario para tu app
+        const user = {
+
+            id: firebaseUser.uid,
+
+            name: firebaseUser.displayName,
+
+            email: firebaseUser.email,
+
+            photo: firebaseUser.photoURL
+        };
+
+        // guardar sesión
+        localStorage.setItem(
+            "user",
+            JSON.stringify(user)
+        );
+
+        alert("Login con Google correcto");
+
+        window.location.href = "index.html";
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert("Error al iniciar sesión con Google");
+    }
+});
+
 </script>
 
 </body>

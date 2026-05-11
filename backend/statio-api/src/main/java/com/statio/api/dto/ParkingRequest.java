@@ -11,6 +11,10 @@ public class ParkingRequest {
     private double price;
     private Long userId;
 
+    // NUEVO
+    private Double latitude;
+    private Double longitude;
+
     private List<String> images;
 
     // slots enviados desde frontend
@@ -39,4 +43,21 @@ public class ParkingRequest {
 
     public List<AvailabilitySlotDTO> getSlots() { return slots; }
     public void setSlots(List<AvailabilitySlotDTO> slots) { this.slots = slots; }
+
+    // NUEVO
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
 }
