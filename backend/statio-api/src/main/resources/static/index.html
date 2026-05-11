@@ -3,176 +3,237 @@
 <head>
 <meta charset="UTF-8">
 <title>Statio</title>
-
 <script src="https://cdn.tailwindcss.com"></script>
-
 </head>
 
 <body class="bg-gray-100">
 
 <!-- NAVBAR -->
 <div class="flex justify-between items-center p-4 bg-white shadow">
-
 <div class="text-xl font-bold text-blue-600">Ⓟ Statio</div>
 
 <div class="flex items-center gap-4">
-
-    <!-- Menú privado -->
     <div id="privateMenu" class="hidden flex gap-4">
-        <a href="create-parking.html" class="hover:underline">Publicar Plaza</a>
-        <a href="my-reservations.html" class="hover:underline">Mis Reservas</a>
-        <a href="validate.html" class="hover:underline">Validar</a>
+        <a href="create-parking.html">Publicar Plaza</a>
+        <a href="my-reservations.html">Mis Reservas</a>
+        <a href="validate.html">Validar</a>
     </div>
 
-    <!-- Usuario -->
     <div id="userSection" class="flex gap-4">
-        <a href="login.html" class="hover:underline">Login</a>
-        <a href="register.html" class="hover:underline">Register</a>
+        <a href="login.html">Login</a>
+        <a href="register.html">Register</a>
     </div>
-
 </div>
-
 </div>
 
 <!-- HERO -->
 <header class="bg-gradient-to-r from-blue-500 to-purple-600 text-white pt-16 pb-24">
 
 <div class="max-w-7xl mx-auto px-8">
-
 <h1 class="text-5xl font-bold mb-4">
-Encuentra la plaza de parking perfecta para tu vehículo
+Encuentra la plaza de parking perfecta
 </h1>
-
 <p class="text-xl mb-10">
-Alquila plazas de garaje por horas. Seguro, fácil y económico.
+Alquila plazas por horas
 </p>
-
 </div>
 
-<!-- SEARCH BAR -->
+<!-- FILTROS -->
 <div class="max-w-5xl mx-auto px-8">
+<div class="bg-white p-4 rounded-xl flex flex-wrap gap-4 text-black shadow-lg">
 
-<div class="bg-white p-4 rounded-xl flex gap-4 text-black shadow-lg">
-
-<input type="text" placeholder="Buscar por ubicación, nombre..."
+<input id="searchInput" type="text"
+placeholder="Buscar..."
 class="flex-1 p-3 border rounded-lg">
 
-<select class="p-3 border rounded-lg">
-<option>Todos los vehículos</option>
-<option>Coche pequeño</option>
-<option>Coche grande</option>
-<option>Moto</option>
+<select id="vehicleFilter" class="p-3 border rounded-lg">
+<option value="">Todos</option>
+<option value="Coche">Coche</option>
+<option value="Moto">Moto</option>
+<option value="Furgoneta">Furgoneta</option>
+<option value="Camion">Camion</option>
 </select>
 
-<select class="p-3 border rounded-lg">
-<option>Todos los precios</option>
-<option>0 - 2 €/hora</option>
-<option>2 - 5 €/hora</option>
-<option>5 €+</option>
+<input id="minPrice" type="number" placeholder="Min €"
+class="p-3 border rounded-lg w-24">
+
+<input id="maxPrice" type="number" placeholder="Max €"
+class="p-3 border rounded-lg w-24">
+
+<input id="dateFilter" type="date"
+class="p-3 border rounded-lg">
+
+<select id="sortPrice" class="p-3 border rounded-lg">
+<option value="">Ordenar</option>
+<option value="asc">Precio ascendente</option>
+<option value="desc">Precio descendente</option>
 </select>
 
 </div>
-
 </div>
 
 </header>
 
-<!-- RESULTS -->
+<!-- RESULTADOS -->
 <section class="p-12 max-w-7xl mx-auto">
-
-<div class="flex justify-between items-center mb-8">
-
-<h2 class="text-2xl font-bold">
-Plazas disponibles
-</h2>
-
-<div class="flex gap-3">
-<button class="bg-white border px-4 py-2 rounded-lg">Cuadrícula</button>
-<button class="bg-white border px-4 py-2 rounded-lg">Mapa</button>
-</div>
-
-</div>
-
-<!-- GRID DINÁMICO -->
+<h2 class="text-2xl font-bold mb-8">Plazas disponibles</h2>
 <div id="parkingsContainer" class="grid grid-cols-3 gap-8"></div>
-
 </section>
 
-<!-- SCRIPT SESIÓN -->
 <script>
-const user = JSON.parse(localStorage.getItem("user"));
 
+// sesión
+const user = JSON.parse(localStorage.getItem("user"));
 if (user) {
     document.getElementById("privateMenu").classList.remove("hidden");
-
     document.getElementById("userSection").innerHTML = `
-        <span class="mr-4 font-semibold">${user.name}</span>
-        <button onclick="logout()" class="text-red-500 hover:underline">Salir</button>
+        <span>${user.name}</span>
+        <button onclick="logout()">Salir</button>
     `;
 }
 
-function logout() {
+function logout(){
     localStorage.removeItem("user");
-    window.location.href = "login.html";
+    window.location.href="login.html";
 }
-</script>
 
-<!-- SCRIPT CARGAR PARKINGS -->
-<script>
+// bloquear fechas pasadas
+const today = new Date().toISOString().split("T")[0];
+document.getElementById("dateFilter").setAttribute("min", today);
 
-async function loadParkings() {
+// datos
+let allParkings = [];
+
+async function loadParkings(){
     const res = await fetch("/api/parking");
-    const parkings = await res.json();
+    allParkings = await res.json();
+    applyFilters();
+}
+
+// filtros
+function applyFilters(){
+
+    const search = document.getElementById("searchInput").value.toLowerCase();
+    const vehicle = document.getElementById("vehicleFilter").value;
+    const min = parseFloat(document.getElementById("minPrice").value) || 0;
+    const max = parseFloat(document.getElementById("maxPrice").value) || Infinity;
+    const selectedDate = document.getElementById("dateFilter").value;
+    const sort = document.getElementById("sortPrice").value;
+
+    let filtered = allParkings.filter(p => {
+
+        const matchSearch =
+            p.title.toLowerCase().includes(search) ||
+            p.location.toLowerCase().includes(search);
+
+        const matchVehicle =
+            vehicle === "" || p.vehicleType === vehicle;
+
+        const matchPrice =
+            p.price >= min && p.price <= max;
+
+        let matchDate = true;
+
+        if(selectedDate){
+            matchDate = p.availabilitySlots?.some(slot =>
+                slot.date === selectedDate && slot.available
+            );
+        }
+
+        return matchSearch && matchVehicle && matchPrice && matchDate;
+    });
+
+    // ordenar
+    if(sort === "asc"){
+        filtered.sort((a,b) => a.price - b.price);
+    } else if(sort === "desc"){
+        filtered.sort((a,b) => b.price - a.price);
+    }
+
+    renderParkings(filtered, selectedDate);
+}
+
+// render
+function renderParkings(list, selectedDate){
 
     const container = document.getElementById("parkingsContainer");
     container.innerHTML = "";
 
-    parkings.forEach(p => {
+    const today = new Date().toISOString().split("T")[0];
+
+    list.forEach(p => {
 
         const image = (p.images && p.images.length > 0)
             ? p.images[0]
-            : "https://via.placeholder.com/400x200";
+            : "";
+
+        let availableCount = 0;
+
+        if(p.availabilitySlots){
+
+            if(selectedDate){
+                availableCount = p.availabilitySlots.filter(slot =>
+                    slot.date === selectedDate && slot.available
+                ).length;
+            } else {
+                availableCount = p.availabilitySlots.filter(slot =>
+                    slot.available
+                ).length;
+            }
+        }
+
+        // disponible hoy
+        const availableToday = p.availabilitySlots?.some(slot =>
+            slot.date === today && slot.available
+        );
 
         const card = `
-        <div class="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden">
+        <div class="bg-white rounded-xl shadow overflow-hidden">
 
-            <div class="relative">
-                <img src="${image}" class="w-full h-48 object-cover">
-
-                <span class="absolute top-3 left-3 bg-blue-500 text-white text-xs px-3 py-1 rounded-full">
-                    ${p.vehicleType}
-                </span>
-
-                <span class="absolute top-3 right-3 bg-white text-sm px-3 py-1 rounded-full shadow">
-                    €${p.price}/hora
-                </span>
-            </div>
+            ${
+                image
+                ? `<img src="${image}" class="w-full h-48 object-cover">`
+                : `<div class="w-full h-48 bg-gray-200 flex items-center justify-center">Sin imagen</div>`
+            }
 
             <div class="p-6">
-                <h3 class="text-lg font-semibold mb-2">
-                    ${p.title}
-                </h3>
+                <h3 class="font-semibold">${p.title}</h3>
 
-                <p class="text-gray-500 text-sm mb-3">
-                    📍 ${p.location}
-                </p>
+                <p class="text-gray-500">${p.location}</p>
 
-                <p class="text-gray-600 text-sm mb-4">
-                    ${p.description || ""}
+                <p class="text-sm mb-2">${p.description || ""}</p>
+
+                <p class="font-bold mb-2">€${p.price}/h</p>
+
+                ${
+                    availableToday
+                    ? `<span class="text-green-600 text-sm font-semibold">Disponible hoy</span>`
+                    : ""
+                }
+
+                <p class="text-sm text-blue-600 mb-3">
+                    ${availableCount} franjas disponibles
                 </p>
 
                 <a href="parking-details.html?id=${p.id}"
-                class="block text-center bg-black text-white py-3 rounded-lg hover:bg-gray-800">
+                class="block text-center bg-black text-white py-2 rounded">
                 Ver detalles
                 </a>
             </div>
-
         </div>
         `;
 
         container.innerHTML += card;
     });
 }
+
+// listeners
+document.getElementById("searchInput").addEventListener("input", applyFilters);
+document.getElementById("vehicleFilter").addEventListener("change", applyFilters);
+document.getElementById("minPrice").addEventListener("input", applyFilters);
+document.getElementById("maxPrice").addEventListener("input", applyFilters);
+document.getElementById("dateFilter").addEventListener("change", applyFilters);
+document.getElementById("sortPrice").addEventListener("change", applyFilters);
 
 loadParkings();
 
