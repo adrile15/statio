@@ -6,7 +6,9 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 </head>
@@ -15,100 +17,191 @@
 
 <!-- NAVBAR -->
 <div class="flex justify-between items-center p-4 bg-white shadow">
-    <div class="text-xl font-bold text-blue-600">Ⓟ Statio</div>
+
+    <div class="text-xl font-bold text-blue-600">
+        Ⓟ Statio
+    </div>
 
     <div class="flex items-center gap-6">
-        <a href="javascript:history.back()" class="hover:underline">Volver</a>
+
+        <a href="javascript:history.back()"
+        class="hover:underline">
+            Volver
+        </a>
+
         <a href="profile.html"
         id="userName"
         class="font-semibold hover:underline cursor-pointer">
         </a>
-        <button onclick="logout()" class="text-red-500">Salir</button>
+
+        <button onclick="logout()"
+        class="text-red-500">
+            Salir
+        </button>
+
     </div>
+
 </div>
 
 <!-- CONTENIDO -->
-<div class="max-w-6xl mx-auto mt-10 bg-white p-8 rounded-xl shadow">
+<div class="max-w-6xl mx-auto mt-10 bg-white p-8 rounded-2xl shadow">
 
 <!-- IMÁGENES -->
-<div id="imageWrapper" class="relative mb-6 hidden">
+<div id="imageWrapper"
+class="relative mb-6 hidden">
 
-    <img id="mainImage" class="w-full h-96 object-cover rounded-lg">
+    <img id="mainImage"
+    class="w-full h-96 object-cover rounded-xl">
 
     <button onclick="prevImage()"
-    class="absolute left-2 top-1/2 bg-white px-3 py-1 rounded shadow">
+    class="absolute left-4 top-1/2 -translate-y-1/2 bg-white px-4 py-2 rounded-full shadow">
     ◀
     </button>
 
     <button onclick="nextImage()"
-    class="absolute right-2 top-1/2 bg-white px-3 py-1 rounded shadow">
+    class="absolute right-4 top-1/2 -translate-y-1/2 bg-white px-4 py-2 rounded-full shadow">
     ▶
     </button>
 
 </div>
 
 <!-- INFO -->
-<h1 id="title" class="text-3xl font-bold mb-2"></h1>
+<div class="flex justify-between items-start mb-6">
 
-<p id="location" class="text-gray-500 mb-4"></p>
+    <div>
 
-<p id="description" class="mb-6"></p>
+        <h1 id="title"
+        class="text-4xl font-bold mb-2"></h1>
 
-<p id="price" class="text-2xl font-bold text-blue-600 mb-8"></p>
+        <p id="location"
+        class="text-gray-500 text-lg"></p>
+
+    </div>
+
+    <div class="text-right">
+
+        <p id="price"
+        class="text-3xl font-bold text-blue-600"></p>
+
+        <p class="text-gray-500">
+            por hora
+        </p>
+
+    </div>
+
+</div>
+
+<p id="description"
+class="mb-10 text-gray-700 text-lg leading-relaxed"></p>
 
 <!-- MAPA -->
 <div class="mb-10">
 
-    <h3 class="text-xl font-bold mb-4">
+    <h3 class="text-2xl font-bold mb-4">
         Ubicación
     </h3>
 
-    <div id="map" class="w-full h-96 rounded-xl shadow"></div>
+    <div id="map"
+    class="w-full h-96 rounded-2xl shadow-xl">
+    </div>
 
 </div>
 
 <!-- DISPONIBILIDAD -->
-<div class="mt-8">
+<div>
 
-    <h3 class="text-xl font-bold mb-4">
+    <h3 class="text-2xl font-bold mb-6">
         Disponibilidad
     </h3>
 
-    <div id="slotsContainer" class="space-y-3"></div>
+    <div id="slotsContainer"
+    class="space-y-4">
+    </div>
 
 </div>
 
 <!-- BOTÓN -->
-<button onclick="openModal()"
-class="mt-6 w-full bg-black text-white p-3 rounded-lg">
+<button onclick="openPaymentModal()"
+class="mt-8 w-full bg-black hover:bg-gray-800 transition text-white p-4 rounded-xl text-lg font-semibold">
+
 Reservar plaza
+
 </button>
 
 </div>
 
-<!-- MODAL -->
-<div id="modal"
-class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+<!-- MODAL PAGO -->
+<div id="paymentModal"
+class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
 
-    <div class="bg-white p-6 rounded-xl w-96 text-center">
+    <div class="bg-white rounded-2xl p-8 w-[450px]">
 
-        <h2 class="text-xl font-bold mb-4">
-            Confirmar reserva
+        <h2 class="text-2xl font-bold mb-6 text-center">
+            Finalizar pago
         </h2>
 
-        <p class="mb-4">
-            ¿Quieres reservar esta franja?
-        </p>
+        <div class="space-y-4">
 
-        <button onclick="confirmReservation()"
-        class="bg-green-500 text-white px-4 py-2 rounded mr-2">
-        Confirmar
-        </button>
+            <input
+            id="cardName"
+            type="text"
+            placeholder="Nombre del titular"
+            class="w-full p-3 border rounded-xl">
 
-        <button onclick="closeModal()"
-        class="bg-gray-300 px-4 py-2 rounded">
-        Cancelar
-        </button>
+            <input
+            id="cardNumber"
+            type="text"
+            placeholder="4242 4242 4242 4242"
+            class="w-full p-3 border rounded-xl">
+
+            <div class="grid grid-cols-2 gap-4">
+
+                <input
+                id="cardDate"
+                type="text"
+                placeholder="MM/AA"
+                class="w-full p-3 border rounded-xl">
+
+                <input
+                id="cardCVV"
+                type="text"
+                placeholder="CVV"
+                class="w-full p-3 border rounded-xl">
+
+            </div>
+
+        </div>
+
+        <div class="flex gap-4 mt-8">
+
+            <button onclick="processPayment()"
+            class="flex-1 bg-green-500 hover:bg-green-600 text-white p-3 rounded-xl font-semibold transition">
+
+            Pagar
+
+            </button>
+
+            <button onclick="closePaymentModal()"
+            class="flex-1 bg-gray-200 hover:bg-gray-300 p-3 rounded-xl transition">
+
+            Cancelar
+
+            </button>
+
+        </div>
+
+        <!-- LOADING -->
+        <div id="loadingPayment"
+        class="hidden text-center mt-6">
+
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-black mx-auto mb-4">
+            </div>
+
+            <p class="font-semibold">
+                Procesando pago...
+            </p>
+
+        </div>
 
     </div>
 
@@ -116,22 +209,39 @@ class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-cen
 
 <script>
 
-// usuario
-const user = JSON.parse(localStorage.getItem("user"));
+// =======================
+// USUARIO
+// =======================
 
-if (user) {
-    document.getElementById("userName").innerText = user.name;
+const user =
+    JSON.parse(localStorage.getItem("user"));
+
+if(user){
+
+    document.getElementById("userName")
+    .innerText = user.name;
 }
 
 // logout
 function logout(){
+
     localStorage.removeItem("user");
-    window.location.href="login.html";
+
+    window.location.href = "login.html";
 }
 
-// params
-const params = new URLSearchParams(window.location.search);
+// =======================
+// PARAMS
+// =======================
+
+const params =
+    new URLSearchParams(window.location.search);
+
 const id = params.get("id");
+
+// =======================
+// VARIABLES
+// =======================
 
 let images = [];
 let current = 0;
@@ -140,37 +250,49 @@ let selectedSlotId = null;
 let map;
 let marker;
 
-// iniciar mapa
+// =======================
+// MAPA
+// =======================
+
 function initMap(lat, lng){
 
-    map = L.map('map').setView([lat, lng], 15);
+    map = L.map('map')
+    .setView([lat, lng], 15);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap'
-    }).addTo(map);
+    L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        {
+            attribution: '&copy; OpenStreetMap'
+        }
+    ).addTo(map);
 
     marker = L.marker([lat, lng]).addTo(map);
 }
 
-// cargar parking
+// =======================
+// CARGAR PARKING
+// =======================
+
 fetch(`/api/parking/${id}`)
 .then(res => res.json())
 .then(p => {
 
     // info
-    document.getElementById("title").innerText = p.title;
+    document.getElementById("title")
+    .innerText = p.title;
 
-    document.getElementById("location").innerText =
-        "📍 " + p.location;
+    document.getElementById("location")
+    .innerText = "📍 " + p.location;
 
-    document.getElementById("description").innerText =
-        p.description;
+    document.getElementById("description")
+    .innerText = p.description;
 
-    document.getElementById("price").innerText =
-        "€" + p.price + "/hora";
+    document.getElementById("price")
+    .innerText = "€" + p.price;
 
     // imágenes
-    images = (p.images && p.images.length > 0)
+    images =
+        (p.images && p.images.length > 0)
         ? p.images
         : [];
 
@@ -190,7 +312,7 @@ fetch(`/api/parking/${id}`)
     } else {
 
         document.getElementById("map").innerHTML = `
-            <div class="w-full h-full bg-gray-200 rounded-xl flex items-center justify-center text-gray-500">
+            <div class="w-full h-full bg-gray-200 rounded-xl flex items-center justify-center">
                 Ubicación no disponible
             </div>
         `;
@@ -202,10 +324,11 @@ fetch(`/api/parking/${id}`)
 
     p.availabilitySlots.forEach(slot => {
 
-        const div = document.createElement("div");
+        const div =
+            document.createElement("div");
 
         div.className =
-            "p-4 border rounded-lg";
+            "p-5 border rounded-xl transition";
 
         if(!slot.available){
 
@@ -223,12 +346,30 @@ fetch(`/api/parking/${id}`)
         }
 
         div.innerHTML = `
-            <div class="font-semibold">
-                ${slot.date}
-            </div>
+            <div class="flex justify-between items-center">
 
-            <div class="text-gray-500">
-                ${slot.startTime} - ${slot.endTime}
+                <div>
+
+                    <div class="font-bold text-lg">
+                        ${slot.date}
+                    </div>
+
+                    <div class="text-gray-500">
+                        ${slot.startTime} - ${slot.endTime}
+                    </div>
+
+                </div>
+
+                ${
+                    slot.available
+                    ? `<span class="text-green-600 font-semibold">
+                        Disponible
+                       </span>`
+                    : `<span class="text-red-500 font-semibold">
+                        Reservado
+                       </span>`
+                }
+
             </div>
         `;
 
@@ -238,10 +379,16 @@ fetch(`/api/parking/${id}`)
 
                 document.querySelectorAll("#slotsContainer div")
                 .forEach(d =>
-                    d.classList.remove("bg-blue-100")
+                    d.classList.remove(
+                        "bg-blue-100",
+                        "border-blue-500"
+                    )
                 );
 
-                div.classList.add("bg-blue-100");
+                div.classList.add(
+                    "bg-blue-100",
+                    "border-blue-500"
+                );
 
                 selectedSlotId = slot.id;
             };
@@ -251,7 +398,10 @@ fetch(`/api/parking/${id}`)
     });
 });
 
-// imágenes
+// =======================
+// IMÁGENES
+// =======================
+
 function showImage(){
 
     document.getElementById("mainImage").src =
@@ -267,13 +417,18 @@ function nextImage(){
 
 function prevImage(){
 
-    current = (current - 1 + images.length) % images.length;
+    current =
+        (current - 1 + images.length)
+        % images.length;
 
     showImage();
 }
 
-// modal
-function openModal(){
+// =======================
+// MODAL PAGO
+// =======================
+
+function openPaymentModal(){
 
     if(!selectedSlotId){
 
@@ -282,70 +437,106 @@ function openModal(){
         return;
     }
 
-    document.getElementById("modal")
+    document.getElementById("paymentModal")
     .classList.remove("hidden");
 }
 
-function closeModal(){
+function closePaymentModal(){
 
-    document.getElementById("modal")
+    document.getElementById("paymentModal")
     .classList.add("hidden");
 }
 
-// reservar
-async function confirmReservation(){
+// =======================
+// PROCESAR PAGO
+// =======================
 
-    const res = await fetch("/api/reservations", {
+async function processPayment(){
 
-        method: "POST",
+    const cardNumber =
+        document.getElementById("cardNumber")
+        .value
+        .replaceAll(" ", "");
 
-        headers: {
-            "Content-Type": "application/json"
-        },
+    // tarjeta fake válida
+    if(cardNumber !== "4242424242424242"){
 
-        body: JSON.stringify({
+        alert(
+            "Tarjeta rechazada.\nUsa: 4242 4242 4242 4242"
+        );
 
-            userId: user.id,
-            parkingSpotId: id,
-            slotId: selectedSlotId
-        })
-    });
-
-    if(res.ok){
-
-        const data = await res.json();
-
-        document.getElementById("modal").innerHTML = `
-
-            <div class="bg-white p-6 rounded-xl text-center">
-
-                <h2 class="text-xl font-bold mb-4">
-                    Reserva confirmada
-                </h2>
-
-                <p>
-                    Tu código:
-                </p>
-
-                <p class="text-2xl font-bold text-blue-600">
-                    ${data.accessCode}
-                </p>
-
-                <button
-                onclick="location.href='index.html'"
-                class="mt-4 bg-black text-white px-4 py-2 rounded">
-
-                Volver
-
-                </button>
-
-            </div>
-        `;
-
-    } else {
-
-        alert("Error al reservar");
+        return;
     }
+
+    // loading
+    document.getElementById("loadingPayment")
+    .classList.remove("hidden");
+
+    // simulación pago
+    setTimeout(async () => {
+
+        const res = await fetch(
+            "/api/reservations",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    userId: user.id,
+
+                    parkingSpotId: id,
+
+                    slotId: selectedSlotId
+                })
+            }
+        );
+
+        if(res.ok){
+
+            const data = await res.json();
+
+            document.getElementById("paymentModal")
+            .innerHTML = `
+
+                <div class="bg-white p-8 rounded-2xl text-center w-[450px]">
+
+                    <div class="text-6xl mb-4">
+                        
+                    </div>
+
+                    <h2 class="text-3xl font-bold mb-4">
+                        Pago completado
+                    </h2>
+
+                    <p class="text-gray-600 mb-2">
+                        Tu código de acceso
+                    </p>
+
+                    <p class="text-4xl font-bold text-blue-600 mb-6">
+                        ${data.accessCode}
+                    </p>
+
+                    <button
+                    onclick="location.href='index.html'"
+                    class="bg-black text-white px-6 py-3 rounded-xl w-full">
+
+                    Volver al inicio
+
+                    </button>
+
+                </div>
+            `;
+
+        } else {
+
+            alert("Error al reservar");
+        }
+
+    }, 2500);
 }
 
 </script>
