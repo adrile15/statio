@@ -169,9 +169,16 @@ if (user) {
     document.getElementById("privateMenu").classList.remove("hidden");
 
     document.getElementById("userSection").innerHTML = `
-        <span>${user.name}</span>
-        <button onclick="logout()">Salir</button>
-    `;
+    <a href="profile.html"
+    class="font-semibold hover:text-blue-600 transition">
+        ${user.name}
+    </a>
+
+    <button onclick="logout()"
+    class="text-red-500 hover:underline">
+        Salir
+    </button>
+`;
 }
 
 function logout(){

@@ -104,9 +104,7 @@ Regístrate aquí
 <script type="module">
 
 import {
-    auth,
-    provider,
-    signInWithPopup
+    loginWithGoogle
 } from "./firebase.js";
 
 // LOGIN NORMAL
@@ -148,6 +146,7 @@ document.getElementById("loginForm")
 
         const user = await response.json();
 
+        // guardar usuario SQL
         localStorage.setItem(
             "user",
             JSON.stringify(user)
@@ -167,41 +166,7 @@ document.getElementById("loginForm")
 document.getElementById("googleLogin")
 .addEventListener("click", async () => {
 
-    try {
-
-        const result =
-            await signInWithPopup(auth, provider);
-
-        const firebaseUser = result.user;
-
-        // usuario para tu app
-        const user = {
-
-            id: firebaseUser.uid,
-
-            name: firebaseUser.displayName,
-
-            email: firebaseUser.email,
-
-            photo: firebaseUser.photoURL
-        };
-
-        // guardar sesión
-        localStorage.setItem(
-            "user",
-            JSON.stringify(user)
-        );
-
-        alert("Login con Google correcto");
-
-        window.location.href = "index.html";
-
-    } catch (error) {
-
-        console.error(error);
-
-        alert("Error al iniciar sesión con Google");
-    }
+    await loginWithGoogle();
 });
 
 </script>

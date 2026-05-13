@@ -7,51 +7,63 @@ import java.util.List;
 @Table(name = "users")
 public class User {
 
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-private String name;
+    private String name;
 
-@Column(unique = true)
-private String email;
+    @Column(unique = true)
+    private String email;
 
-private String password;
+    private String password;
 
-@OneToMany(mappedBy = "user") 
-private List<ParkingSpot> parkingSpots;
+    // NUEVO
+    @Column(unique = true)
+    private String firebaseUid;
 
-@OneToMany(mappedBy = "user")
-private List<Reservation> reservations;
+    @OneToMany(mappedBy = "user")
+    private List<ParkingSpot> parkingSpots;
 
-public User() {}
+    @OneToMany(mappedBy = "user")
+    private List<Reservation> reservations;
 
-public Long getId() {
-return id;
-}
+    public User() {}
 
-public String getName() {
-return name;
-}
+    public Long getId() {
+        return id;
+    }
 
-public void setName(String name) {
-this.name = name;
-}
+    public String getName() {
+        return name;
+    }
 
-public String getEmail() {
-return email;
-}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-public void setEmail(String email) {
-this.email = email;
-}
+    public String getEmail() {
+        return email;
+    }
 
-public String getPassword() {
-return password;
-}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-public void setPassword(String password) {
-this.password = password;
-}
+    public String getPassword() {
+        return password;
+    }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    // NUEVO
+    public String getFirebaseUid() {
+        return firebaseUid;
+    }
+
+    public void setFirebaseUid(String firebaseUid) {
+        this.firebaseUid = firebaseUid;
+    }
 }
