@@ -41,7 +41,7 @@ async function loginWithGoogle(){
 
         // enviar a spring
         const response = await fetch(
-            "http://localhost:8081/api/auth/firebase-login",
+            "/api/auth/firebase-login",
             {
                 method: "POST",
 
