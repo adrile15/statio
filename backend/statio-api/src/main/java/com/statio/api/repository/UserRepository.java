@@ -10,6 +10,5 @@ public interface UserRepository
 
     Optional<User> findByEmail(String email);
 
-    // NUEVO
     User findByFirebaseUid(String firebaseUid);
 }

@@ -18,7 +18,6 @@ public class User {
 
     private String password;
 
-    // NUEVO
     @Column(unique = true)
     private String firebaseUid;
 

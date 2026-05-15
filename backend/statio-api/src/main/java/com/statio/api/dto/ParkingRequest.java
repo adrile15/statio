@@ -44,7 +44,6 @@ public class ParkingRequest {
     public List<AvailabilitySlotDTO> getSlots() { return slots; }
     public void setSlots(List<AvailabilitySlotDTO> slots) { this.slots = slots; }
 
-    // NUEVO
     public Double getLatitude() {
         return latitude;
     }

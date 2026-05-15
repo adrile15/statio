@@ -100,7 +100,7 @@ public class ReservationController {
     }
 
     private String generateAccessCode(){
-        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        String chars = "0123456789";
         Random random = new Random();
         StringBuilder code = new StringBuilder();
 
